@@ -119,7 +119,7 @@ public class SceneGroup {
 		} catch (ScriptException e) {
 			Grasscutter.getLogger().error("Error loading group " + id + " in scene " + sceneId, e);
 		}
-		Grasscutter.getLogger().info("group {} in scene {} is loaded successfully.", id, sceneId);
+		Grasscutter.getLogger().debug("group {} in scene {} is loaded successfully.", id, sceneId);
 		return this;
 	}
 }

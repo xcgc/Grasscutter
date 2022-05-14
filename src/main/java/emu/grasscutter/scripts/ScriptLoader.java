@@ -95,7 +95,7 @@ public class ScriptLoader {
 			return sc.get();
 		}
 
-		Grasscutter.getLogger().info("Loaded Script" + path);
+		Grasscutter.getLogger().debug("Loaded Script " + path);
 
 		File file = new File(path);
 

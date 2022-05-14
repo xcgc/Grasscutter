@@ -65,7 +65,7 @@ public class SceneMeta {
             Grasscutter.getLogger().error("Error running script", e);
             return null;
         }
-        Grasscutter.getLogger().info("scene {} metadata is loaded successfully.", sceneId);
+        Grasscutter.getLogger().debug("scene {} metadata is loaded successfully.", sceneId);
         return this;
     }
 }

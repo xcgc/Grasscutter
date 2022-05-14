@@ -337,7 +337,7 @@ public class SceneScriptManager {
 		try{
 			return func.call(this.getScriptLibLua(), args);
 		}catch (LuaError error){
-			ScriptLib.logger.error("[LUA] call trigger failed {},{}",name,args,error);
+			ScriptLib.logger.debug("[LUA] call trigger failed {},{}",name,args,error);
 			return LuaValue.valueOf(-1);
 		}
 	}

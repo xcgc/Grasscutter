@@ -1,6 +1,7 @@
 package emu.grasscutter.server.dispatch;
 
 import emu.grasscutter.Grasscutter;
+import emu.grasscutter.utils.ConfigContainer;
 import express.http.HttpContextHandler;
 import express.http.Request;
 import express.http.Response;
@@ -40,7 +41,7 @@ public final class AnnouncementHandler implements HttpContextHandler {
         data = data
             .replace("{{ANNOUNCEMENT_TITLE}}", welcomeAnnouncement.title)
             .replace("{{ANNOUNCEMENT_SUBTITLE}}", welcomeAnnouncement.subtitle)
-            .replace("{{ANNOUNCEMENT_CONTENT}}", welcomeAnnouncement.content+"\nThis server run with:<type=\"browser\" text=\"Grasscutters\" href=\"https://github.com/Grasscutters\"/><type=\"browser\" text=\"DockerGC\" href=\"https://github.com/akbaryahya/DockerGC\"/>")
+            .replace("{{ANNOUNCEMENT_CONTENT}}", welcomeAnnouncement.content+"<br>Server running: <a href='https://github.com/akbaryahya/DockerGC'>DockerGC</a><br><a href='https://github.com/Grasscutters/Grasscutter'>Grasscutter</a>")
             .replace("{{DISPATCH_PUBLIC}}", dispatchDomain)
             .replace("{{SYSTEM_TIME}}", String.valueOf(System.currentTimeMillis()));
         response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": " + data + "}");

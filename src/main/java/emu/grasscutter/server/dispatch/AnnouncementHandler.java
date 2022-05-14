@@ -35,7 +35,12 @@ public final class AnnouncementHandler implements HttpContextHandler {
             + lr(DISPATCH_INFO.accessAddress, DISPATCH_INFO.bindAddress) + ":"
             + lr(DISPATCH_INFO.accessPort, DISPATCH_INFO.bindPort);
 
+            var welcomeAnnouncement = GAME_INFO.joinOptions.welcomeAnnouncement;
+
         data = data
+            .replace("{{ANNOUNCEMENT_TITLE}}", welcomeAnnouncement.title)
+            .replace("{{ANNOUNCEMENT_SUBTITLE}}", welcomeAnnouncement.subtitle)
+            .replace("{{ANNOUNCEMENT_CONTENT}}", welcomeAnnouncement.content+"\nThis server run with:<type=\"browser\" text=\"Grasscutters\" href=\"https://github.com/Grasscutters\"/><type=\"browser\" text=\"DockerGC\" href=\"https://github.com/akbaryahya/DockerGC\"/>")
             .replace("{{DISPATCH_PUBLIC}}", dispatchDomain)
             .replace("{{SYSTEM_TIME}}", String.valueOf(System.currentTimeMillis()));
         response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": " + data + "}");

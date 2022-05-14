@@ -188,6 +188,7 @@ public class ConfigContainer {
         public int[] welcomeEmotes = {2007, 1002, 4010};
         public String welcomeMessage = "Welcome to Yuuki server.";
         public JoinOptions.Mail welcomeMail = new JoinOptions.Mail();
+        public Announcement welcomeAnnouncement = new JoinOptions.Announcement();
 
         public static class Mail {
             public String title = "Welcome to Yuuki Server";
@@ -209,6 +210,11 @@ public class ConfigContainer {
                     // Dendro Sigil
                     new emu.grasscutter.game.mail.Mail.MailItem(303, 1000)
             };
+        }
+        public static class Announcement {
+          public String title = "Welcome to Yuuki Server";
+          public String content = "Hi";
+          public String subtitle= "Welcome!";
         }
     }
 

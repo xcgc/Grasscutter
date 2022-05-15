@@ -15,8 +15,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Objects;
-
-import static emu.grasscutter.Configuration.DATA;
+import static emu.grasscutter.Configuration.*;
+//import static emu.grasscutter.Configuration.DATA;
 
 /**
  * Handles requests related to the announcements page.
@@ -47,47 +47,39 @@ public final class AnnouncementsHandler implements Router {
         express.all("/hk4e_global/mdk/shopwindow/shopwindow/listPriceTier", new HttpJsonResponse("{\"retcode\":0,\"message\":\"OK\",\"data\":{\"suggest_currency\":\"USD\",\"tiers\":[]}}"));
 
         express.get("/hk4e/announcement/*", AnnouncementsHandler::getPageResources);
-        express.get("/sw.js", AnnouncementsHandler::getPageResources);
-        express.get("/dora/lib/vue/2.6.11/vue.min.js", AnnouncementsHandler::getPageResources);
     }
     
     private static void getAnnouncement(Request request, Response response) {
-        if (Objects.equals(request.baseUrl(), "/common/hk4e_global/announcement/api/getAnnContent")) {
-            String data = readToString(Paths.get(DATA("GameAnnouncement.json")).toFile());
-            response.send("{\"retcode\":0,\"message\":\"OK\",\"data\":" + data + "}");
-        } else if (Objects.equals(request.baseUrl(), "/common/hk4e_global/announcement/api/getAnnList")) {
-            String data = readToString(Paths.get(DATA("GameAnnouncementList.json")).toFile())
-                    .replace("System.currentTimeMillis()", String.valueOf(System.currentTimeMillis()));
-            response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": " + data + "}");
-        }
+        response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": NOTYET}");
     }
     
-    private static void getPageResources(Request request, Response response) {
-        var path = request.path();
-        switch(path) {
-            case "/sw.js" -> response.send(swjs);
-            case "/hk4e/announcement/index.html" -> response.send(template);
-            case "/dora/lib/vue/2.6.11/vue.min.js" -> response.send(vue);
-            
-            default -> {
-                File renderFile = new File(Utils.toFilePath(DATA(path)));
-                if(!renderFile.exists()) {
-                    Grasscutter.getLogger().info("File not exist: " + path);
-                    return;
-                }
-
-                String ext = path.substring(path.lastIndexOf(".") + 1);
-                if ("css".equals(ext)) {
-                    response.type("text/css");
-                    response.send(FileUtils.read(renderFile));
-                } else {
-                    response.send(FileUtils.read(renderFile));
-                }
+    private static void getPageResources(Request req, Response res) {
+        File renderFile = new File(Utils.toFilePath(DATA(req.path())));
+        if (renderFile.exists()) {
+            switch(req.path().substring(req.path().lastIndexOf(".") + 1)) {
+                case "css":
+                    res.type("text/css");
+                    break;
+                case "html":
+                    res.type("text/html");
+                    break;
+                case "js":
+                    res.type("text/javascript");
+                    break;
+                default:
+                    res.type("application/octet-stream");
+                    break;
             }
+            res.send(FileUtils.read(renderFile));
+        } else {
+            Grasscutter.getLogger().warn("File does not exist: " + renderFile);
+            res.status(404);
+            res.send("");
         }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
+
     private static String readToString(File file) {
         long length = file.length();
         byte[] content = new byte[(int) length];
@@ -101,4 +93,5 @@ public final class AnnouncementsHandler implements Router {
 
         return new String(content);
     }
+    
 }

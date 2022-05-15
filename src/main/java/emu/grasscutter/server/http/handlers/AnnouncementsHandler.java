@@ -6,6 +6,7 @@ import emu.grasscutter.server.http.Router;
 import emu.grasscutter.utils.FileUtils;
 import emu.grasscutter.utils.Utils;
 import express.Express;
+import express.http.MediaType;
 import express.http.Request;
 import express.http.Response;
 import io.javalin.Javalin;
@@ -13,27 +14,15 @@ import io.javalin.Javalin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
 import static emu.grasscutter.Configuration.*;
-//import static emu.grasscutter.Configuration.DATA;
 
 /**
  * Handles requests related to the announcements page.
  */
 public final class AnnouncementsHandler implements Router {
-    private static String template, swjs, vue;
-    
-    public AnnouncementsHandler() {
-        var templateFile = new File(Utils.toFilePath(DATA("/hk4e/announcement/index.html")));
-        var swjsFile = new File(Utils.toFilePath(DATA("/hk4e/announcement/sw.js")));
-        var vueFile = new File(Utils.toFilePath(DATA("/hk4e/announcement/vue.min.js")));
-        
-        template = templateFile.exists() ? new String(FileUtils.read(template)) : null;
-        swjs = swjsFile.exists() ? new String(FileUtils.read(swjs)) : null;
-        vue = vueFile.exists() ? new String(FileUtils.read(vueFile)) : null;
-    }
-    
     @Override public void applyRoutes(Express express, Javalin handle) {
         // hk4e-api-os.hoyoverse.com
         express.all("/common/hk4e_global/announcement/api/getAlertPic", new HttpJsonResponse("{\"retcode\":0,\"message\":\"OK\",\"data\":{\"total\":0,\"list\":[]}}"));
@@ -50,48 +39,61 @@ public final class AnnouncementsHandler implements Router {
     }
     
     private static void getAnnouncement(Request request, Response response) {
-        response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": NOTYET}");
+        String data = "";
+        if (Objects.equals(request.baseUrl(), "/common/hk4e_global/announcement/api/getAnnContent")) {
+            data = readToString(new File(Utils.toFilePath(DATA("GameAnnouncement.json"))));
+        } else if (Objects.equals(request.baseUrl(), "/common/hk4e_global/announcement/api/getAnnList")) {
+            data = readToString(new File(Utils.toFilePath(DATA("GameAnnouncementList.json"))));
+        } else {
+            response.send("{\"retcode\":404,\"message\":\"Unknown request path\"}");
+        }
+
+        if (data.isEmpty()) {
+            response.send("{\"retcode\":500,\"message\":\"Unable to fetch requsted content\"}");
+            return;
+        }
+
+        var welcomeAnnouncement = GAME_INFO.joinOptions.welcomeAnnouncement;
+
+        String dispatchDomain = "http" + (HTTP_ENCRYPTION.useInRouting ? "s" : "") + "://"
+                + lr(HTTP_INFO.accessAddress, HTTP_INFO.bindAddress) + ":"
+                + lr(HTTP_INFO.accessPort, HTTP_INFO.bindPort);
+
+                data = data
+                .replace("{{ANNOUNCEMENT_TITLE}}", welcomeAnnouncement.title)
+                .replace("{{ANNOUNCEMENT_SUBTITLE}}", welcomeAnnouncement.subtitle)
+                .replace("{{ANNOUNCEMENT_CONTENT}}", welcomeAnnouncement.content+"<br>Server running: <a href='https://github.com/akbaryahya/DockerGC'>DockerGC</a><br><a href='https://github.com/Grasscutters/Grasscutter'>Grasscutter</a>")
+                .replace("{{DISPATCH_PUBLIC}}", dispatchDomain)
+                .replace("{{SYSTEM_TIME}}", String.valueOf(System.currentTimeMillis()));
+            response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": " + data + "}");
     }
     
-    private static void getPageResources(Request req, Response res) {
-        File renderFile = new File(Utils.toFilePath(DATA(req.path())));
-        if (renderFile.exists()) {
-            switch(req.path().substring(req.path().lastIndexOf(".") + 1)) {
-                case "css":
-                    res.type("text/css");
-                    break;
-                case "html":
-                    res.type("text/html");
-                    break;
-                case "js":
-                    res.type("text/javascript");
-                    break;
-                default:
-                    res.type("application/octet-stream");
-                    break;
-            }
-            res.send(FileUtils.read(renderFile));
+    private static void getPageResources(Request request, Response response) {
+        String filename = Utils.toFilePath(DATA(request.path()));
+        File file = new File(filename);
+        if (file.exists() && file.isFile()) {
+            MediaType fromExtension = MediaType.getByExtension(filename.substring(filename.lastIndexOf(".") + 1));
+            response.type((fromExtension != null) ? fromExtension.getMIME() : "application/octet-stream");
+            response.send(FileUtils.read(file));
         } else {
-            Grasscutter.getLogger().warn("File does not exist: " + renderFile);
-            res.status(404);
-            res.send("");
+            Grasscutter.getLogger().warn("File does not exist: " + file);
+            response.status(404);
         }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
 
     private static String readToString(File file) {
-        long length = file.length();
-        byte[] content = new byte[(int) length];
+        byte[] content = new byte[(int) file.length()];
         
         try {
             FileInputStream in = new FileInputStream(file);
             in.read(content); in.close();
         } catch (IOException ignored) {
-            Grasscutter.getLogger().warn("File not found: " + file.getAbsolutePath());
+            Grasscutter.getLogger().warn("File does not exist: " + file);
         }
 
-        return new String(content);
+        return new String(content, StandardCharsets.UTF_8);
     }
     
 }

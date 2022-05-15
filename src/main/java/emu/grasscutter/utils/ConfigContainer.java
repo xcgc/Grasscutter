@@ -1,17 +1,9 @@
 package emu.grasscutter.utils;
-
-import com.google.gson.JsonObject;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.Grasscutter.ServerDebugMode;
 import emu.grasscutter.Grasscutter.ServerRunMode;
-
 import java.io.File;
-import java.io.FileReader;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Locale;
-
-import static emu.grasscutter.Grasscutter.config;
 
 /**
  * *when your JVM fails*
@@ -117,7 +109,7 @@ public class ConfigContainer {
         public int bindPort = 22102;
         /* This is the port used in the default region. */
         public int accessPort = 0;
-        public boolean enableScriptInBigWorld = true;
+        public boolean enableScriptInBigWorld = false;
 
         public GameOptions gameOptions = new GameOptions();
         public JoinOptions joinOptions = new JoinOptions();
@@ -129,7 +121,7 @@ public class ConfigContainer {
     public static class Dispatch {
         public Region[] regions = {};
 
-        public String defaultName = "Grasscutter";
+        public String defaultName = "Yuuki";
     }
 
     public static class Encryption {

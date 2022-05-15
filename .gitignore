@@ -52,6 +52,7 @@ tmp/
 .vscode
 
 # Grasscutter
+data
 logs/
 plugins/
 GM Handbook.txt
@@ -64,7 +65,6 @@ mongod.exe
 /*.sh
 gacha-mapping.js
 BuildConfig.java
-data/gacha_mappings.js
 # macOS
 .DS_Store
-data/hk4e/announcement/
+

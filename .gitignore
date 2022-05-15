@@ -63,8 +63,12 @@ mongod.exe
 /src/generated/
 /*.sh
 gacha-mapping.js
+mappings.js
 BuildConfig.java
-data/gacha_mappings.js
+
+# lombok
+/.apt_generated/
+
 # macOS
 .DS_Store
 data/hk4e/announcement/

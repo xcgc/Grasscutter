@@ -52,7 +52,6 @@ tmp/
 .vscode
 
 # Grasscutter
-data
 logs/
 plugins/
 GM Handbook.txt

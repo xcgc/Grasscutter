@@ -27,6 +27,13 @@ public final class DefaultAuthenticators {
             boolean successfulLogin = false; 
             String address = request.getRequest().ip();
             String responseMessage = translate("messages.dispatch.account.username_error");
+
+            // vaild check login
+        if(
+          requestData.account != null &&            
+          requestData.account.matches("[A-Za-z0-9_]+") || 
+          Pattern.compile(Utils.isValidEmail).matcher(requestData.account).matches()
+        ){
             
             // Get account from database.
             Account account = DatabaseHelper.getAccountByName(requestData.account);
@@ -70,6 +77,11 @@ public final class DefaultAuthenticators {
                 // Log the failure.
                 Grasscutter.getLogger().info(translate("messages.dispatch.account.account_login_exist_error", address));
             }
+
+          }else{
+            response.retcode = -201;
+            response.message = translate("dockergc.account.username_vaild");
+          }
             
             return response;
         }

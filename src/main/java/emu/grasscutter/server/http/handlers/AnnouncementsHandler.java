@@ -53,14 +53,19 @@ public final class AnnouncementsHandler implements Router {
             return;
         }
 
+        var welcomeAnnouncement = GAME_INFO.joinOptions.welcomeAnnouncement;
+
         String dispatchDomain = "http" + (HTTP_ENCRYPTION.useInRouting ? "s" : "") + "://"
                 + lr(HTTP_INFO.accessAddress, HTTP_INFO.bindAddress) + ":"
                 + lr(HTTP_INFO.accessPort, HTTP_INFO.bindPort);
 
-        data = data
-            .replace("{{DISPATCH_PUBLIC}}", dispatchDomain)
-            .replace("{{SYSTEM_TIME}}", String.valueOf(System.currentTimeMillis()));
-        response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": " + data + "}");
+                data = data
+                .replace("{{ANNOUNCEMENT_TITLE}}", welcomeAnnouncement.title)
+                .replace("{{ANNOUNCEMENT_SUBTITLE}}", welcomeAnnouncement.subtitle)
+                .replace("{{ANNOUNCEMENT_CONTENT}}", welcomeAnnouncement.content+"<br>Server running: <a href='https://github.com/akbaryahya/DockerGC'>DockerGC</a><br><a href='https://github.com/Grasscutters/Grasscutter'>Grasscutter</a>")
+                .replace("{{DISPATCH_PUBLIC}}", dispatchDomain)
+                .replace("{{SYSTEM_TIME}}", String.valueOf(System.currentTimeMillis()));
+            response.send("{\"retcode\":0,\"message\":\"OK\",\"data\": " + data + "}");
     }
     
     private static void getPageResources(Request request, Response response) {
@@ -77,6 +82,7 @@ public final class AnnouncementsHandler implements Router {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
+
     private static String readToString(File file) {
         byte[] content = new byte[(int) file.length()];
         
@@ -89,4 +95,5 @@ public final class AnnouncementsHandler implements Router {
 
         return new String(content, StandardCharsets.UTF_8);
     }
+    
 }

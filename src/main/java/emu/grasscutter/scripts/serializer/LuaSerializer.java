@@ -103,4 +103,17 @@ public class LuaSerializer implements Serializer {
 		
 		return object;
 	}
+
+	public <T> Field getField(Class<T> clazz, String name){
+		try{
+			return clazz.getField(name);
+		} catch (NoSuchFieldException ex) {
+			try {
+				return clazz.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				// ignore
+				return null;
+			}
+		}
+	}
 }

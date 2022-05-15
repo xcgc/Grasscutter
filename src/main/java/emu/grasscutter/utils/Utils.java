@@ -315,7 +315,7 @@ public final class Utils {
 
 		return map;
 	}
-
+  
     /**
 	  * get progressPercentage
 	  */
@@ -339,7 +339,7 @@ public final class Utils {
           System.out.print("\n");
       }
     }
-    
+
     public static final String isValidEmail = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
 
 	/**

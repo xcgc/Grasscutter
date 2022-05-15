@@ -5,9 +5,12 @@ import emu.grasscutter.auth.AuthenticationSystem.AuthenticationRequest;
 import emu.grasscutter.database.DatabaseHelper;
 import emu.grasscutter.game.Account;
 import emu.grasscutter.server.http.objects.*;
+import emu.grasscutter.utils.Utils;
 
 import static emu.grasscutter.Configuration.*;
 import static emu.grasscutter.utils.Language.translate;
+
+import java.util.regex.Pattern;
 
 /**
  * A class containing default authenticators.
@@ -29,11 +32,11 @@ public final class DefaultAuthenticators {
             String responseMessage = translate("messages.dispatch.account.username_error");
 
             // vaild check login
-        if(
-          requestData.account != null &&            
-          requestData.account.matches("[A-Za-z0-9_]+") || 
-          Pattern.compile(Utils.isValidEmail).matcher(requestData.account).matches()
-        ){
+            if(
+             requestData.account != null &&            
+             requestData.account.matches("[A-Za-z0-9_]+") || 
+             Pattern.compile(Utils.isValidEmail).matcher(requestData.account).matches()
+            ){
             
             // Get account from database.
             Account account = DatabaseHelper.getAccountByName(requestData.account);

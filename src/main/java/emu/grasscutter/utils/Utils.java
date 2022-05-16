@@ -9,6 +9,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import emu.grasscutter.Grasscutter;
+import emu.grasscutter.server.game.GameServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -208,7 +209,7 @@ public final class Utils {
 		if(!fileExists(dataFolder))
 			createFolder(dataFolder);
 
-		if(exit) System.exit(1);
+		if(exit) GameServer.doExit(0,"BinOutput");
 	}
 
 	/**

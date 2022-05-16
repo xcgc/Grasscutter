@@ -1,5 +1,22 @@
 package emu.grasscutter.scripts;
 
+import static emu.grasscutter.Configuration.SCRIPT;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.script.Bindings;
+import javax.script.CompiledScript;
+import javax.script.ScriptException;
+
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+
 import ch.ethz.globis.phtree.PhTree;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
@@ -11,18 +28,20 @@ import emu.grasscutter.game.entity.GameEntity;
 import emu.grasscutter.game.world.Scene;
 import emu.grasscutter.net.proto.VisionTypeOuterClass;
 import emu.grasscutter.scripts.constants.EventType;
-import emu.grasscutter.scripts.data.*;
+import emu.grasscutter.scripts.data.SceneBlock;
+import emu.grasscutter.scripts.data.SceneConfig;
+import emu.grasscutter.scripts.data.SceneGadget;
+import emu.grasscutter.scripts.data.SceneGroup;
+import emu.grasscutter.scripts.data.SceneMeta;
+import emu.grasscutter.scripts.data.SceneMonster;
+import emu.grasscutter.scripts.data.SceneRegion;
+import emu.grasscutter.scripts.data.SceneSuite;
+import emu.grasscutter.scripts.data.SceneTrigger;
+import emu.grasscutter.scripts.data.ScriptArgs;
 import emu.grasscutter.scripts.service.ScriptMonsterSpawnService;
 import emu.grasscutter.scripts.service.ScriptMonsterTideService;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
-
-import javax.script.Bindings;
-import javax.script.ScriptException;
-import java.util.*;
 
 public class SceneScriptManager {
 	private final Scene scene;
@@ -192,8 +211,17 @@ public class SceneScriptManager {
 	}
 	
 	public void loadGroupFromScript(SceneGroup group) {
-		group.load(getScene().getId(), meta.context);
-
+		// Set flag here so if there is no script, we dont call this function over and over again.
+		group.setLoaded(true);
+		
+		CompiledScript cs = ScriptLoader.getScriptByPath(
+			SCRIPT("Scene/" + getScene().getId() + "/scene" + getScene().getId() + "_group" + group.id + "." + ScriptLoader.getScriptType()));
+	
+		if (cs == null) {
+			return;
+		}
+		
+		// Eval script
 		try {
 			// build the trigger for this scene
 			group.getScript().eval(getBindings());

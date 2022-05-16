@@ -83,12 +83,10 @@ public final class Grasscutter {
 		boolean exitEarly = false;
 		for (String arg : args) {
 			switch (arg.toLowerCase()) {
-        case "-boot" -> {
-          Grasscutter.getLogger().info("DockerGC version: "+ConfigContainer.version_DockerGC+" | Grasscutter version: " + BuildConfig.VERSION + "-" + BuildConfig.GIT_HASH);
-          Tools.createGmHandbook();
-          Tools.createGachaMapping(DATA("gacha_mappings.js"));
-					exitEarly = true;
-				}
+             case "-boot" -> {
+              Grasscutter.getLogger().info("Boot Mode");
+		      exitEarly = true;
+			 }
 			}
 		}
 		

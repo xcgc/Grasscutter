@@ -63,7 +63,7 @@ public class SceneBlock {
 		} catch (ScriptException e) {
 			Grasscutter.getLogger().error("Error loading block " + id + " in scene " + sceneId, e);
 		}
-		Grasscutter.getLogger().debug("scene {} block {} is loaded successfully.", sceneId, id);
+		Grasscutter.getLogger().info("scene {} block {} is loaded successfully.", sceneId, id);
 		return this;
 	}
 }

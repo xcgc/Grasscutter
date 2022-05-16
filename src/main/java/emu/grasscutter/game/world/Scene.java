@@ -547,7 +547,7 @@ public class Scene {
 			return List.of();
 		}
 
-		Grasscutter.getLogger().debug("Scene {} Block {} loaded {} group(s)", this.getId(), block.id, groups.size());
+		Grasscutter.getLogger().info("Scene {} Block {} loaded {} group(s)", this.getId(), block.id, groups.size());
 		return groups;
 	}
 	public void onLoadBlock(SceneBlock block, List<Player> players) {
@@ -599,7 +599,7 @@ public class Scene {
 		}
 
 		scriptManager.meetEntities(entities);
-		Grasscutter.getLogger().debug("Scene {} loaded {} group(s)", this.getId(), groups.size());
+		Grasscutter.getLogger().info("Scene {} loaded {} group(s)", this.getId(), groups.size());
 	}
 
 	public void onUnloadBlock(SceneBlock block) {
@@ -620,7 +620,7 @@ public class Scene {
 			}
 		}
 		scriptManager.getLoadedGroupSetPerBlock().remove(block.id);
-		Grasscutter.getLogger().debug("Scene {} Block {} is unloaded.", this.getId(), block.id);
+		Grasscutter.getLogger().info("Scene {} Block {} is unloaded.", this.getId(), block.id);
 	}
 
 	// Gadgets

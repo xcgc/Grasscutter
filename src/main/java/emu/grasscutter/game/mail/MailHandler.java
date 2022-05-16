@@ -41,7 +41,7 @@ public class MailHandler {
 		
 		this.mail.add(message);
 		
-		Grasscutter.getLogger().debug("Mail sent to user [" + this.getPlayer().getUid()  + ":" + this.getPlayer().getNickname() + "]!");
+		Grasscutter.getLogger().info("Mail sent to user [" + this.getPlayer().getUid()  + ":" + this.getPlayer().getNickname() + "]!");
 		
 		if (this.getPlayer().isOnline()) {
 			this.getPlayer().sendPacket(new PacketMailChangeNotify(this.getPlayer(), message));

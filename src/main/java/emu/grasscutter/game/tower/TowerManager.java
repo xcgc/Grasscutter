@@ -36,14 +36,14 @@ public class TowerManager {
     this();
     this.player = player;
     if (player != null) {
-      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager MainPlayer " + player.getNickname());
+      Grasscutter.getLogger().info("DEBUG Abyse: TowerManager MainPlayer " + player.getNickname());
     }
   }
 
   // Internal
   public TowerManager() {
     if (player != null) {
-      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager Main " + player.getNickname());
+      Grasscutter.getLogger().info("DEBUG Abyse: TowerManager Main " + player.getNickname());
     }
   }
 
@@ -51,7 +51,7 @@ public class TowerManager {
   public void setPlayer(Player player) {
     this.player = player;
     if (player != null) {
-      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager setPlayer " + player.getNickname());
+      Grasscutter.getLogger().info("DEBUG Abyse: TowerManager setPlayer " + player.getNickname());
     }
   }
 
@@ -95,7 +95,7 @@ public class TowerManager {
 
   public void enterLevel(int enterPointId) {
 
-    Grasscutter.getLogger().debug("DEBUG Abyse: enterLevel " + player.getNickname());
+    Grasscutter.getLogger().info("DEBUG Abyse: enterLevel " + player.getNickname());
 
     var levelData = GameData.getTowerLevelDataMap().get(getCurrentLevelId());
 

@@ -34,7 +34,7 @@ public final class PluginManager {
      * Loads plugins from the config-specified directory.
      */
     private void loadPlugins() {
-        File pluginsDir = new File(Utils.toFilePath(PLUGIN()));
+        File pluginsDir = new File(Utils.toFilePath(PLUGINS_FOLDER));
         if(!pluginsDir.exists() && !pluginsDir.mkdirs()) {
             Grasscutter.getLogger().error("Failed to create plugins directory: " + pluginsDir.getAbsolutePath());
             return;

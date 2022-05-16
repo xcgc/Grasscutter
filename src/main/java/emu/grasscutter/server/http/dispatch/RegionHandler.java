@@ -10,6 +10,7 @@ import emu.grasscutter.net.proto.RegionInfoOuterClass.RegionInfo;
 import emu.grasscutter.net.proto.RegionSimpleInfoOuterClass.RegionSimpleInfo;
 import emu.grasscutter.server.event.dispatch.QueryAllRegionsEvent;
 import emu.grasscutter.server.event.dispatch.QueryCurrentRegionEvent;
+import emu.grasscutter.server.game.GameServer;
 import emu.grasscutter.server.http.Router;
 import emu.grasscutter.utils.Crypto;
 import emu.grasscutter.utils.FileUtils;
@@ -59,7 +60,7 @@ public final class RegionHandler implements Router {
         var configuredRegions = new ArrayList<>(List.of(DISPATCH_INFO.regions));
         if(SERVER.runMode != ServerRunMode.HYBRID && configuredRegions.size() == 0) {
             Grasscutter.getLogger().error("[Dispatch] There are no game servers available. Exiting due to unplayable state.");
-            System.exit(1);
+            GameServer.doExit(0,"no game servers");
         } else configuredRegions.add(new Region("os_usa", DISPATCH_INFO.defaultName,
                 lr(GAME_INFO.accessAddress, GAME_INFO.bindAddress), 
                 lr(GAME_INFO.accessPort, GAME_INFO.bindPort)));

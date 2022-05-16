@@ -109,7 +109,7 @@ public class ConfigContainer {
         public int bindPort = 22102;
         /* This is the port used in the default region. */
         public int accessPort = 0;
-        public boolean enableScriptInBigWorld = false;
+        public boolean enableScriptInBigWorld = true;
 
         public GameOptions gameOptions = new GameOptions();
         public JoinOptions joinOptions = new JoinOptions();
@@ -152,14 +152,14 @@ public class ConfigContainer {
         public Rates rates = new Rates();
 
         // DockerGC
-	     	public int CMD_Spawn = 150;
-		    public int CMD_Give = 10000000;
-		    public int CMD_Drop = 100;
+		public int CMD_Spawn = 150;
+	    public int CMD_Give = 10000000;
+	    public int CMD_Drop = 100;
         public int CMD_DayLogin = 6;
-		    public boolean CMD_NoGiveTes = true;
+		public boolean CMD_NoGiveTes = true;
         public boolean CMD_ListOnline = false;
-		    public boolean DropMo = true;
-		    public boolean DungeonMT = false;
+		public boolean DropMo = true;
+		public boolean DungeonMT = false;
         public boolean AbyssMT = false;
 
         public static class InventoryLimits {

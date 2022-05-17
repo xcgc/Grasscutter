@@ -11,3 +11,4 @@ plugins/
 src/generated/
 GM Handbook.txt
 config.json
+BuildConfig.java

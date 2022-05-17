@@ -21,6 +21,7 @@ import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.player.Player;
 import emu.grasscutter.game.quest.GameMainQuest;
 import emu.grasscutter.game.quest.GameQuest;
+import emu.grasscutter.server.game.GameServer;
 
 import static emu.grasscutter.Configuration.*;
 
@@ -66,6 +67,8 @@ public final class DatabaseManager {
 		// Ensure indexes
 		try {
 			gameDatastore.ensureIndexes();
+		} catch (OutOfMemoryError E) {
+			GameServer.doExit(0,"OutOfMemoryError Datebase");		
 		} catch (MongoCommandException exception) {
 			Grasscutter.getLogger().info("Mongo index error: ", exception);
 			// Duplicate index error

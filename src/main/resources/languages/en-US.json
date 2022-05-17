@@ -91,7 +91,7 @@
     "status": {
       "enabled": "Enabled",
       "disabled": "Disabled",
-      "help": "Help",
+      "help": "Help", 
       "success": "Success"
     },
     "account": {
@@ -124,7 +124,6 @@
       "furniture": "Cleared furniture for %s.",
       "displays": "Cleared displays for %s.",
       "virtuals": "Cleared virtuals for %s.",
-      "done": "Cleared %s item with %s limit",
       "everything": "Cleared everything for %s.",
       "description": "Deletes unequipped unlocked items, including yellow rarity ones from your inventory"
     },
@@ -167,7 +166,7 @@
       "refinement_must_between_1_and_5": "Refinement must be between 1 and 5.",
       "given": "Given %s of %s to %s.",
       "given_with_level_and_refinement": "Given %s with level %s, refinement %s %s times to %s",
-      "given_level": "Given %s with level %s times to %s",
+      "given_level": "Given %s with level %s %s times to %s",
       "description": "Gives an item to you or the specified player"
     },
     "godmode": {
@@ -181,10 +180,6 @@
     "heal": {
       "success": "All characters have been healed.",
       "description": "Heal all characters in your current team."
-    },
-    "join": {
-      "usage": "Usage: join [AvatarIDs] such as\"join 10000038 10000039\"",
-      "description": "force join avatar into your team"
     },
     "kick": {
       "player_kick_player": "Player [%s:%s] has kicked player [%s:%s]",
@@ -237,11 +232,6 @@
       "reload_start": "Reloading config.",
       "reload_done": "Reload complete.",
       "description": "Reload server config"
-    },
-    "remove": {
-      "usage": "Usage: remove [indexOfYourTeam] index start from 1",
-      "invalid_index": "The index number is illegal. It starts from 1 and the maximum value is the number of roles in the team",
-      "description": "force remove avatar into your team. Such as `remove 1 2`."
     },
     "resetConst": {
       "reset_all": "Reset all avatars' constellations.",
@@ -332,6 +322,24 @@
       "q_skill_id": "Q skill ID %s.",
       "description": "Set talent level for your current active character"
     },
+    "team": {
+      "usage": "Usage: team <add|remove|set> [avatarId,...] [index|first|last|index-index,...]",
+      "invalid_usage": "invalid usage",
+      "add_usage": "usage(add): team add <avatarId,...> [index]",
+      "invalid_index": "index is invalid",
+      "add_too_much": "server is only allow you to have at most %d avatar(s) in your team",
+      "failed_to_add_avatar": "failed to add avatar by id: %s",
+      "remove_usage": "usage(remove): team remove <index|first|last|index-index,...>",
+      "failed_parse_index": "failed to parse index: %s",
+      "remove_too_much": "you can't remove so many avatars, your team list will be empty for this",
+      "ignore_index": "ignored index(es): %s",
+      "set_usage": "usage(set): team set <index> <avatarId>",
+      "index_out_of_range": "index your specified is out of range",
+      "failed_parse_avatar_id": "failed to parse avatar id: %s",
+      "avatar_already_in_team": "avatar is already in team",
+      "avatar_not_found": "avatar not found: %d",
+      "description": "modify your team manually"
+    },
     "teleportAll": {
       "success": "Summoned all players to your location.",
       "error": "You only can use this command in MP mode.",
@@ -386,8 +394,8 @@
     }
   },
   "dockergc": {
-      "account": {
-        "username_vaild": "Use Username without spaces and special letters or email format"
-      }
+    "account": {
+      "username_vaild": "Use Username without spaces and special letters or email format"
+    }
   }
 }

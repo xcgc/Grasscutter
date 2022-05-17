@@ -157,6 +157,7 @@ public class ConfigContainer {
         // DockerGC
 		public int CMD_Spawn = 150;
 	    public int CMD_Give = 10000000;
+        public int CMD_Give_WP = 10;
 	    public int CMD_Drop = 100;
         public int CMD_DayLogin = 6;
 		public boolean CMD_NoGiveTes = true;
@@ -175,7 +176,7 @@ public class ConfigContainer {
 
         public static class AvatarLimits {
             public int singlePlayerTeam = 4;
-            public int multiplayerTeam = 15;
+            public int multiplayerTeam = 4;
         }
 
         public static class Rates {

@@ -86,7 +86,6 @@ public final class GameServer extends KcpServer {
 		this.expeditionManager = new ExpeditionManager(this);
 		this.combineManger = new CombineManger(this);
 		this.towerScheduleManager = new TowerScheduleManager(this);	
-
 	}
 	
 	public GameServerPacketHandler getPacketHandler() {
@@ -187,8 +186,7 @@ public final class GameServer extends KcpServer {
 	
 	public SocialDetail.Builder getSocialDetailByUid(int id) {
 		// Get from online players
-		Player player = this.getPlayerByUid(id, true);
-	
+		Player player = this.getPlayerByUid(id, true);	
 		if (player == null) {
 			return null;
 		}
@@ -241,6 +239,8 @@ public final class GameServer extends KcpServer {
 			public void run() {
 				try {
 					onTick();
+				} catch (OutOfMemoryError E) {
+					GameServer.doExit(1,"OutOfMemoryError onTick");
 				} catch (Exception e) {
 					Grasscutter.getLogger().debug(translate("messages.game.game_update_error"), e);
 				}

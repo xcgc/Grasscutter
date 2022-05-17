@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import javax.script.Bindings;
-import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
 import org.luaj.vm2.LuaError;
@@ -210,18 +209,8 @@ public class SceneScriptManager {
 	}
 	
 	public void loadGroupFromScript(SceneGroup group) {
+		group.load(getScene().getId(), meta.context);
 
-		// Set flag here so if there is no script, we dont call this function over and over again.
-		group.setLoaded(true);
-		
-		CompiledScript cs = ScriptLoader.getScriptByPath(
-			SCRIPT("Scene/" + getScene().getId() + "/scene" + getScene().getId() + "_group" + group.id + "." + ScriptLoader.getScriptType()));
-	
-		if (cs == null) {
-			return;
-		}
-		
-		// Eval script
 		try {
 			// build the trigger for this scene
 			group.getScript().eval(getBindings());
@@ -269,7 +258,7 @@ public class SceneScriptManager {
 	}
 	
 	public void spawnGadgetsInGroup(SceneGroup group, SceneSuite suite) {
-		List<SceneGadget> gadgets = group.gadgets;
+		var gadgets = group.gadgets.values();
 		
 		if (suite != null) {
 			gadgets = suite.sceneGadgets;

@@ -60,8 +60,9 @@ public final class RegionHandler implements Router {
         var configuredRegions = new ArrayList<>(List.of(DISPATCH_INFO.regions));
         if(SERVER.runMode != ServerRunMode.HYBRID && configuredRegions.size() == 0) {
             Grasscutter.getLogger().error("[Dispatch] There are no game servers available. Exiting due to unplayable state.");
-            GameServer.doExit(0,"no game servers");
-        } else configuredRegions.add(new Region("os_usa", DISPATCH_INFO.defaultName,
+            System.exit(1);
+        } else if (configuredRegions.size() == 0) 
+            configuredRegions.add(new Region("os_usa", DISPATCH_INFO.defaultName,
                 lr(GAME_INFO.accessAddress, GAME_INFO.bindAddress), 
                 lr(GAME_INFO.accessPort, GAME_INFO.bindPort)));
         

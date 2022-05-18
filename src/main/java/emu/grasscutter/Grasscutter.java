@@ -339,6 +339,8 @@ public final class Grasscutter {
 		while (config.server.game.enableConsole) {
 			try {
 				input = consoleLineReader.readLine("> ");
+			} catch (OutOfMemoryError e) {
+				GameServer.doExit(1,"OutOfMemoryError consoleLineReader");
 			} catch (UserInterruptException e) {
 				if (!isLastInterrupted) {
 					isLastInterrupted = true;

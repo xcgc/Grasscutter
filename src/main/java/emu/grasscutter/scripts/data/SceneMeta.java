@@ -67,9 +67,12 @@ public class SceneMeta {
             SceneIndexManager.buildIndex(this.sceneBlockIndex, blocks, g -> g.min.toXZLongArray());
             SceneIndexManager.buildIndex(this.sceneBlockIndex, blocks, g -> g.max.toXZLongArray());
         } catch (ScriptException e) {
-            Grasscutter.getLogger().error("Error running script", e);
+            Grasscutter.getLogger().error("ScriptException: Error running script", e);
             return null;
-        }
+        } catch (Exception e) {
+			Grasscutter.getLogger().error("Exception: Error running script",e);
+            return null;
+		}
         Grasscutter.getLogger().info("scene {} metadata is loaded successfully.", sceneId);
         return this;
     }

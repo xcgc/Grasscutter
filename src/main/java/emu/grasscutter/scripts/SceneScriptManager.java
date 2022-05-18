@@ -209,7 +209,9 @@ public class SceneScriptManager {
 			// build the trigger for this scene
 			group.getScript().eval(getBindings());
 		} catch (ScriptException e) {
-			Grasscutter.getLogger().error("Could not build the trigger for this scene", e);
+			Grasscutter.getLogger().error("ScriptException: Could not build the trigger for this scene", e);
+		} catch (Exception e) {
+			Grasscutter.getLogger().error("Exception: Could not build the trigger for this scene");
 		}
 
 		group.variables.forEach(var -> this.getVariables().put(var.name, var.value));

@@ -33,25 +33,25 @@ public class TowerManager {
 
   // Main Player
   public TowerManager(Player player) {
-    this();
-    this.player = player;
+    this();    
     if (player != null) {
-      Grasscutter.getLogger().info("DEBUG Abyse: TowerManager MainPlayer " + player.getNickname());
+      this.player = player;
+      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager MainPlayer " + player.getNickname());
     }
   }
 
   // Internal
   public TowerManager() {
     if (player != null) {
-      Grasscutter.getLogger().info("DEBUG Abyse: TowerManager Main " + player.getNickname());
+      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager Main " + player.getNickname());
     }
   }
 
   // Set Player
-  public void setPlayer(Player player) {
-    this.player = player;
+  public void setPlayer(Player player) {    
     if (player != null) {
-      Grasscutter.getLogger().info("DEBUG Abyse: TowerManager setPlayer " + player.getNickname());
+      this.player = player;
+      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager setPlayer " + player.getNickname());
     }
   }
 

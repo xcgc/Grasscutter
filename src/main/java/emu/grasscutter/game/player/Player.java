@@ -1199,7 +1199,7 @@ public class Player {
 	@PostLoad
 	private void onLoad() {
 		this.getTeamManager().setPlayer(this);
-    this.getTowerManager().setPlayer(this);
+        this.getTowerManager().setPlayer(this);
 	}
 
 	public void save() {

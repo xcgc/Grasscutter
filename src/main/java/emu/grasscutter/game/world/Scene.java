@@ -547,7 +547,7 @@ public class Scene {
 			return List.of();
 		}
 
-		Grasscutter.getLogger().info("Scene {} Block {} loaded {} group(s)", this.getId(), block.id, groups.size());
+		Grasscutter.getLogger().debug("Scene {} Block {} loaded {} group(s)", this.getId(), block.id, groups.size());
 		return groups;
 	}
 	public void onLoadBlock(SceneBlock block, List<Player> players) {

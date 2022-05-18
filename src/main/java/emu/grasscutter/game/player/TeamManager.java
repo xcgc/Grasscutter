@@ -72,7 +72,9 @@ public class TeamManager {
 	
 	public TeamManager(Player player) {
 		this();
-		this.player = player;
+		if (player != null) {
+		 this.player = player;
+		}
 		
 		this.teams = new HashMap<>();
 		this.currentTeamIndex = 1;
@@ -90,7 +92,9 @@ public class TeamManager {
 	}
 
 	public void setPlayer(Player player) {
-		this.player = player;
+		if (player != null) {
+		 this.player = player;
+		}
 	}
 	
 	public Map<Integer, TeamInfo> getTeams() {

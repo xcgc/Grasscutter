@@ -130,8 +130,10 @@ public class SceneGroup {
 				);
 			}
 
+		} catch (RuntimeException e) {
+			Grasscutter.getLogger().error("Error RuntimeException loading group " + id + " in scene " + sceneId);		
 		} catch (ScriptException e) {
-			Grasscutter.getLogger().error("Error loading group " + id + " in scene " + sceneId, e);
+			Grasscutter.getLogger().error("Error ScriptException loading group " + id + " in scene " + sceneId);
 		}
 		
 		Grasscutter.getLogger().info("group {} in scene {} is loaded successfully.", id, sceneId);

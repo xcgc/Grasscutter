@@ -18,12 +18,12 @@ public class ConfigContainer {
      */
     public static void updateConfig() {
 
-        // DockerGC Stuuf
+        // DockerGC
         try {
           ConfigContainer config = Grasscutter.getConfig();
           File vv = new File(config.folderStructure.VERSION);
 		      if (vv.exists()) {
-            version_DockerGC = new String(FileUtils.read(vv));
+               version_DockerGC = new String(FileUtils.read(vv));
 		      }
         } catch (Exception e) {
           //TODO: handle exception
@@ -158,7 +158,7 @@ public class ConfigContainer {
 	    public int CMD_Give = 10000000;
         public int CMD_Give_WP = 10;
 	    public int CMD_Drop = 100;
-        public int CMD_DayLogin = 6;
+        public int CMD_DayLogin = 8;
 		public boolean CMD_NoGiveTes = true;
         public boolean CMD_ListOnline = false;
 		public boolean DropMo = true;
@@ -170,7 +170,7 @@ public class ConfigContainer {
             public int relics = 2000;
             public int materials = 2000;
             public int furniture = 2000;
-            public int all = 30000;
+            public int all = 8000;
         }
 
         public static class AvatarLimits {

@@ -30,7 +30,6 @@ import emu.grasscutter.game.Account;
 import emu.grasscutter.game.CoopRequest;
 import emu.grasscutter.game.ability.AbilityManager;
 import emu.grasscutter.game.avatar.Avatar;
-import emu.grasscutter.game.avatar.AvatarProfileData;
 import emu.grasscutter.game.avatar.AvatarStorage;
 import emu.grasscutter.game.entity.EntityGadget;
 import emu.grasscutter.game.entity.EntityItem;
@@ -48,7 +47,6 @@ import emu.grasscutter.game.managers.MapMarkManager.MapMark;
 import emu.grasscutter.game.managers.MapMarkManager.MapMarksManager;
 import emu.grasscutter.game.managers.StaminaManager.StaminaManager;
 import emu.grasscutter.game.props.ActionReason;
-import emu.grasscutter.game.props.EntityType;
 import emu.grasscutter.game.props.PlayerProperty;
 import emu.grasscutter.game.props.SceneType;
 import emu.grasscutter.game.quest.QuestManager;
@@ -965,22 +963,20 @@ public class Player {
 				else
 					this.getScene().broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_PICK_ITEM));
 			}
-		} else if (entity instanceof EntityGadget) {
-			EntityGadget gadget = (EntityGadget) entity;
+		} else if (entity instanceof EntityGadget gadget) {
+			if (gadget.getContent() == null) {
+				return;
+			}
 			
-			if (gadget.getGadgetData().getType() == EntityType.RewardStatue) {
-				if (scene.getChallenge() != null) {
-					scene.getChallenge().getStatueDrops(this);
-				}
-				
-				this.sendPacket(new PacketGadgetInteractRsp(gadget, InteractType.INTERACT_OPEN_STATUE));
+			boolean shouldDelete = gadget.getContent().onInteract(this);
+			
+			if (shouldDelete) {
+				entity.getScene().removeEntity(entity);
 			}
 		} else {
 			// Delete directly
 			entity.getScene().removeEntity(entity);
 		}
-
-		return;
 	}
 
 	public void onPause() {

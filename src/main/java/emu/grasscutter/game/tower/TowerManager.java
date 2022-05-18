@@ -34,25 +34,17 @@ public class TowerManager {
   // Main Player
   public TowerManager(Player player) {
     this();    
-    if (player != null) {
-      this.player = player;
-      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager MainPlayer " + player.getNickname());
-    }
+    this.player = player;
   }
 
   // Internal
   public TowerManager() {
-    if (player != null) {
-      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager Main " + player.getNickname());
-    }
+    // TODO:
   }
 
   // Set Player
   public void setPlayer(Player player) {    
-    if (player != null) {
-      this.player = player;
-      Grasscutter.getLogger().debug("DEBUG Abyse: TowerManager setPlayer " + player.getNickname());
-    }
+    this.player = player;
   }
 
   public int getCurrentFloorId() {

@@ -262,7 +262,7 @@ public final class GameServer extends KcpServer {
 	public static void doExit(int exitStatus,String message) {
 		Grasscutter.getLogger().info("Exit with code "+exitStatus,message);
 		if(exitStatus == 0){
-
+          // skip
 		}else{
 
 			Grasscutter.getLogger().info("-> Stop Event");

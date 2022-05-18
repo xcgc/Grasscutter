@@ -158,8 +158,6 @@ public class Player {
 
 	private PlayerGachaInfo gachaInfo;
 	private PlayerProfile playerProfile;
-	private boolean showAvatar;
-	private ArrayList<AvatarProfileData> shownAvatars;
 	private Set<Integer> rewardedLevels;
 	private ArrayList<ShopLimit> shopLimit;
 	private Map<Long, ExpeditionInfo> expeditionInfo;
@@ -199,11 +197,13 @@ public class Player {
 
 	@Deprecated
 	@SuppressWarnings({"rawtypes", "unchecked"}) // Morphia only!
+	// On Setup Player login
 	public Player() {
 		this.inventory = new Inventory(this);
 		this.avatars = new AvatarStorage(this);
 		this.friendsList = new FriendsList(this);
 		this.mailHandler = new MailHandler(this);
+		this.towerManager = new TowerManager(this);
 		this.abilityManager = new AbilityManager(this);
 		this.setQuestManager(new QuestManager(this));
 		this.pos = new Position();
@@ -251,10 +251,7 @@ public class Player {
 		this.session = session;
 		this.nickname = "Traveler";
 		this.signature = "";
-
-		this.teamManager = new TeamManager(this);
-    this.towerManager = new TowerManager(this);
-
+		this.teamManager = new TeamManager(this);  
 		this.birthday = new PlayerBirthday();
 		this.setProperty(PlayerProperty.PROP_PLAYER_LEVEL, 1);
 		this.setProperty(PlayerProperty.PROP_IS_SPRING_AUTO_USE, 1);
@@ -503,7 +500,7 @@ public class Player {
 	}
 
 	public TowerManager getTowerManager() {
-		return this.towerManager;
+		return towerManager;
 	}
 
 	public QuestManager getQuestManager() {
@@ -1198,78 +1195,29 @@ public class Player {
 
 	@PostLoad
 	private void onLoad() {
-		this.getTeamManager().setPlayer(this);
-        this.getTowerManager().setPlayer(this);
+		if(this.getTeamManager() != null){
+			this.getTeamManager().setPlayer(this);
+		}
+		if(this.getTowerManager() != null){
+			this.getTowerManager().setPlayer(this);
+		}        
 	}
 
 	public void save() {
 		DatabaseHelper.savePlayer(this);
 	}
 
-	public void onLogin() { 
-
-		// Make sure team tower is there  
-    if (this.getTowerManager() == null){
-      this.towerManager = new TowerManager(this);
-    }
-
-    if (this.getTeamManager() == null) {
-      // New player
-      this.teamManager = new TeamManager(this);
-    } else {
-      // Old player
-      // Check Team
-      Boolean UseLastID = false;
-      int LastIndexAvatars = 0;
-      int TotalAvatarsLast = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size();      
-      List< Integer > dupcheck = new ArrayList<>();
-      for (int i = 0; i < TotalAvatarsLast; i++) {
-
-        // Check Total Avatar
-        int TotalAvatarsNow = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size();
-        if(i >= TotalAvatarsNow){
-          // If have reached use last id vaild
-          UseLastID = true;
-          continue;
-        }
-
-        int avatarId = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().get(i);
-        
-        // Delete Avatar Testing from Team
-        if (avatarId < 10000002 || avatarId >= 11000000) {
-          this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().remove(i);
-          continue;
-        }
-
-        // Remove Duplicate Avatars
-        if(dupcheck.contains(avatarId)){
-          this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().remove(i);
-          continue;
-        }
-
-        // Add Duplicate Check
-        dupcheck.add(avatarId);
-        
-        // Update Index
-        LastIndexAvatars = i;
-      }
-
-      // Add Travele if No Avatar in Team
-      if (this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size() == 0) {
-        this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().add(10000007);
-        this.getTeamManager().setCurrentCharacterIndex(0);
-      }
-
-      // Switch Index
-      if (UseLastID) {
-        this.getTeamManager().setCurrentCharacterIndex(LastIndexAvatars);
-      }
-
-    }
-
+	public void onLogin() {
+		
+		// Make sure these exist
 		if (this.getProfile().getUid() == 0) {
 			this.getProfile().syncWithCharacter(this);
 		}
+
+		// Make getTeamManager exist
+        if (this.getTeamManager() == null) {
+         this.teamManager = new TeamManager(this);
+        }
 
 		// Check if player object exists in server
 		// TODO - optimize
@@ -1279,27 +1227,17 @@ public class Player {
 		}
 
 		// Load from db
-    try {
-      this.getAvatars().loadFromDatabase();
+        try {
+          this.getAvatars().loadFromDatabase();
 		  this.getInventory().loadFromDatabase();
 		  this.getAvatars().postLoad();
 		  this.getFriendsList().loadFromDatabase();
 		  this.getMailHandler().loadFromDatabase();
-      this.getQuestManager().loadFromDatabase();
-    } catch (Exception e) {
-      Grasscutter.getLogger().info("TODO: User UID: "+this.getProfile().getUid()+" with username "+this.getAccount().getUsername()+" It seems troublesome (Datebase)", e);
-      this.getSession().close();
-    }
-
-    // Find null avatar and remove it?
-    int GetAvatars = this.getAvatars().getAvatars().size();
-      for (int i = 0; i < GetAvatars; i++) {
-        Avatar avatar = this.getAvatars().getAvatars().get(i);
-        if(avatar == null){
-          this.getAvatars().getAvatars().remove(i);
-        } 
-    }
-    //this.save();
+          this.getQuestManager().loadFromDatabase();
+        } catch (Exception e) {
+          Grasscutter.getLogger().info("TODO: User UID: "+this.getProfile().getUid()+" with username "+this.getAccount().getUsername()+" It seems troublesome (Datebase)", e);
+          this.getSession().close();
+        }   
     		
 		// Create world
 		World world = new World(this);
@@ -1316,23 +1254,23 @@ public class Player {
 		this.setProperty(PlayerProperty.PROP_IS_MP_MODE_AVAILABLE, 1);
 
 		// Packets
-    try {
-      session.send(new PacketPlayerDataNotify(this));
+        try {
+          session.send(new PacketPlayerDataNotify(this));
 		  session.send(new PacketStoreWeightLimitNotify());
 		  session.send(new PacketPlayerStoreNotify(this));
 		  session.send(new PacketAvatarDataNotify(this));
-      session.send(new PacketFinishedParentQuestNotify(this));
+          session.send(new PacketFinishedParentQuestNotify(this));
 		  session.send(new PacketQuestListNotify(this));
-      session.send(new PacketCodexDataFullNotify(this));
+          session.send(new PacketCodexDataFullNotify(this));
 		  session.send(new PacketServerCondMeetQuestListUpdateNotify(this));
-      session.send(new PacketAllWidgetDataNotify(this));
+          session.send(new PacketAllWidgetDataNotify(this));
 		  session.send(new PacketWidgetGadgetAllDataNotify());
-      session.send(new PacketPlayerHomeCompInfoNotify(this));
+          session.send(new PacketPlayerHomeCompInfoNotify(this));
 		  session.send(new PacketHomeComfortInfoNotify(this));
-    } catch (Exception e) {
-      Grasscutter.getLogger().info("TODO: User UID: "+this.getProfile().getUid()+" with username "+this.getAccount().getUsername()+" It seems troublesome (Send Pack)", e);
-      this.getSession().close();
-    }		
+        } catch (Exception e) {
+          Grasscutter.getLogger().info("TODO: User UID: "+this.getProfile().getUid()+" with username "+this.getAccount().getUsername()+" It seems troublesome (Send Pack)", e);
+          this.getSession().close();
+        }		
 
 		getTodayMoonCard(); // The timer works at 0:0, some users log in after that, use this method to check if they have received a reward today or not. If not, send the reward.
 

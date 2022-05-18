@@ -6,12 +6,9 @@ import emu.grasscutter.data.GameData;
 import emu.grasscutter.data.def.TowerScheduleData;
 import emu.grasscutter.server.game.GameServer;
 
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
-
-import static emu.grasscutter.Configuration.*;
 
 public class TowerScheduleManager {
     private final GameServer gameServer;

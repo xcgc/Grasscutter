@@ -413,7 +413,11 @@ public class Scene {
 
 	public void onTick() {
 		if (this.getScriptManager().isInit()) {
-			this.checkBlocks();
+			try {
+				this.checkBlocks();
+			} catch (Exception e) {
+				Grasscutter.getLogger().error("Error checkBlocks");
+			}			
 		} else {
 			// TEMPORARY
 			this.checkSpawns();
@@ -517,16 +521,24 @@ public class Scene {
 
 		for(var block : visible){
 			if (!this.getLoadedBlocks().contains(block)) {
-				this.onLoadBlock(block, this.getPlayers());
-				this.getLoadedBlocks().add(block);
+				try {
+					this.onLoadBlock(block, this.getPlayers());
+				    this.getLoadedBlocks().add(block);
+				} catch (Exception e) {
+					Grasscutter.getLogger().error("Error getLoadedBlocks");
+				}				
 			}else{
-				// dynamic load the groups for players in a loaded block
-				var toLoad = this.getPlayers().stream()
-						.filter(p -> block.contains(p.getPos()))
-						.map(p -> playerMeetGroups(p, block))
-						.flatMap(Collection::stream)
-						.toList();
-				onLoadGroup(toLoad);
+				try {
+				   // dynamic load the groups for players in a loaded block
+				   var toLoad = this.getPlayers().stream()
+				  .filter(p -> block.contains(p.getPos()))
+			      .map(p -> playerMeetGroups(p, block))
+				  .flatMap(Collection::stream)
+				  .toList();
+		           onLoadGroup(toLoad);
+				} catch (Exception e) {
+					Grasscutter.getLogger().error("Error dynamic load the groups");
+				}				
 			}
 		}
 
@@ -552,14 +564,18 @@ public class Scene {
 		this.getScriptManager().loadBlockFromScript(block);
 		scriptManager.getLoadedGroupSetPerBlock().put(block.id , new HashSet<>());
 
-		// the groups form here is not added in current scene
-		var groups = players.stream()
-				.filter(player -> block.contains(player.getPos()))
-				.map(p -> playerMeetGroups(p, block))
-				.flatMap(Collection::stream)
-				.toList();
+		try {
+			// the groups form here is not added in current scene
+		    var groups = players.stream()
+		    .filter(player -> block.contains(player.getPos()))
+		    .map(p -> playerMeetGroups(p, block))
+		    .flatMap(Collection::stream)
+		    .toList();
+            onLoadGroup(groups);
+		} catch (Exception e) {
+			Grasscutter.getLogger().error("Error Grup here");
+		}		
 
-		onLoadGroup(groups);
 		Grasscutter.getLogger().info("Scene {} Block {} loaded.", this.getId(), block.id);
 	}
 
@@ -569,7 +585,12 @@ public class Scene {
 		}
 		for (SceneGroup group : groups) {
 			// We load the script files for the groups here
-			this.getScriptManager().loadGroupFromScript(group);
+			try {
+				this.getScriptManager().loadGroupFromScript(group);
+			}catch(Exception e){
+				Grasscutter.getLogger().error("onLoadGroup faild {} loaded.");
+			}
+			
 		}
 
 		// Spawn gadgets AFTER triggers are added

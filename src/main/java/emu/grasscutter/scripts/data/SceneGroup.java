@@ -130,13 +130,15 @@ public class SceneGroup {
 				);
 			}
 
+		} catch (NullPointerException e) {
+			Grasscutter.getLogger().error("NullPointerException: Error loading group " + id + " in scene " + sceneId,e);	
 		} catch (ScriptException e) {
 			Grasscutter.getLogger().error("ScriptException: Error loading group " + id + " in scene " + sceneId,e);		
 		} catch (Exception e) {
 			Grasscutter.getLogger().error("Exception: Error loading group " + id + " in scene " + sceneId);
 		}
 		
-		Grasscutter.getLogger().info("group {} in scene {} is loaded successfully.", id, sceneId);
+		Grasscutter.getLogger().info("group {} in scene {} is loaded successfully123", id, sceneId);
 		return this;
 	}
 }

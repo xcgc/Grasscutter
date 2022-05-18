@@ -169,7 +169,11 @@ public class SceneScriptManager {
 			for (SceneGroup group : block.groups) {
 				if (group.id == groupId) {
 					if(!group.isLoaded()){
-						getScene().onLoadGroup(List.of(group));
+						try {
+							getScene().onLoadGroup(List.of(group));
+						} catch (Exception e) {
+							Grasscutter.getLogger().error("Error getScene().onLoadGroup");
+						}						
 					}
 					return group;
 				}
@@ -203,7 +207,11 @@ public class SceneScriptManager {
 	}
 	
 	public void loadGroupFromScript(SceneGroup group) {
-		group.load(getScene().getId(), meta.context);
+		try {
+			group.load(getScene().getId(), meta.context);
+		} catch (Exception e) {
+			Grasscutter.getLogger().error("abc");
+		}		
 
 		try {
 			// build the trigger for this scene
@@ -214,11 +222,15 @@ public class SceneScriptManager {
 			Grasscutter.getLogger().error("Exception: Could not build the trigger for this scene");
 		}
 
-		group.variables.forEach(var -> this.getVariables().put(var.name, var.value));
-		this.sceneGroups.put(group.id, group);
-
-		if(group.regions != null){
-			group.regions.forEach(this::registerRegion);
+		try {
+			// put for this scene
+			group.variables.forEach(var -> this.getVariables().put(var.name, var.value));
+		    this.sceneGroups.put(group.id, group);
+		    if(group.regions != null){
+			 group.regions.forEach(this::registerRegion);
+		    }
+		} catch (Exception e) {
+			Grasscutter.getLogger().error("Exception: (getVariables) Could not put group for this scene");
 		}
 	}
 	

@@ -372,25 +372,27 @@ public class SceneScriptManager {
 	}
 
 	public EntityGadget createGadget(int groupId, int blockId, SceneGadget g) {
+
 		EntityGadget entity = new EntityGadget(getScene(), g.gadget_id, g.pos);
 
 		if (entity.getGadgetData() == null){
+			ScriptLib.logger.info("Null createGadget: "+g.gadget_id+" at pos "+g.pos.toString());
 			return null;
 		}
+		ScriptLib.logger.info("CreateGadget: ID: "+g.gadget_id+" - Tipe:"+entity.getGadgetData().getType().toString()+" - POS:"+g.pos.toString()+"");
 
 		entity.setBlockId(blockId);
 		entity.setConfigId(g.config_id);
 		entity.setGroupId(groupId);
-		entity.getRotation().set(g.rot);
-		entity.setState(g.state);
+		entity.getRotation().set(g.rot);		 
+		entity.setState(g.state);		
 		entity.setPointType(g.point_type);
 		entity.buildContent();
-		
+
 		// Lua event
-		if(entity.getScene().getSceneType() != SceneType.SCENE_DUNGEON){
-			this.callEvent(EventType.EVENT_GADGET_CREATE, new ScriptArgs(entity.getConfigId()));		
-		}
-		//ScriptLib.logger.info("createGadget: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+" ");
+		this.callEvent(EventType.EVENT_GADGET_CREATE, new ScriptArgs(entity.getConfigId()));
+
+		ScriptLib.logger.info("createGadget: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+"  - Name "+entity.getGadgetData().getJsonName()+" - Stats: "+g.state+" ");
 
 		return entity;
 	}
@@ -430,47 +432,23 @@ public class SceneScriptManager {
 				.onMonsterCreatedListener.forEach(action -> action.onNotify(entity));
 		
 		// Lua event
-		if(entity.getScene().getSceneType() != SceneType.SCENE_DUNGEON){
-		 callEvent(EventType.EVENT_ANY_MONSTER_LIVE, new ScriptArgs(entity.getConfigId()));
-		}
+		callEvent(EventType.EVENT_ANY_MONSTER_LIVE, new ScriptArgs(entity.getConfigId()));		
 
-		//ScriptLib.logger.info("createMonster: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+" ");
+		ScriptLib.logger.info("createMonster: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+" ");
 
 		return entity;
 	}
 
 	public void addEntity(GameEntity gameEntity){
 		getScene().addEntity(gameEntity);
-		callCreateEvent(gameEntity);
 	}
 	
 	public void meetEntities(List<? extends GameEntity> gameEntity){
 		getScene().addEntities(gameEntity, VisionTypeOuterClass.VisionType.VISION_MEET);
-		gameEntity.forEach(this::callCreateEvent);
 	}
 	
 	public void addEntities(List<? extends GameEntity> gameEntity){
 		getScene().addEntities(gameEntity);
-		gameEntity.forEach(this::callCreateEvent);
-	}
-
-	public void callCreateEvent(GameEntity gameEntity){
-
-		if(!isInit){
-			//ScriptLib.logger.info("Belum siap");
-			return;
-		}
-
-		//ScriptLib.logger.info("callCreateEvent: BlockId "+gameEntity.getBlockId()+" - GroupId "+gameEntity.getGroupId()+" - getEntityType "+gameEntity.getEntityType()+" - SceneType "+gameEntity.getScene().getSceneType()+" ");
-
-		if(gameEntity.getScene().getSceneType() == SceneType.SCENE_DUNGEON){
-		 if(gameEntity instanceof EntityMonster entityMonster){
-			callEvent(EventType.EVENT_ANY_MONSTER_LIVE, new ScriptArgs(entityMonster.getConfigId()));
-		 }
-		 if(gameEntity instanceof EntityGadget entityGadget){
-			this.callEvent(EventType.EVENT_GADGET_CREATE, new ScriptArgs(entityGadget.getConfigId()));
-		 }
-	    }
 	}
 
 	public PhTree<SceneBlock> getBlocksIndex() {

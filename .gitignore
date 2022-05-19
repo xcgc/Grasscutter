@@ -12,3 +12,4 @@ src/generated/
 GM Handbook.txt
 config.json
 BuildConfig.java
+*.jar

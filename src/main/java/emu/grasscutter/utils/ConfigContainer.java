@@ -84,7 +84,7 @@ public class ConfigContainer {
         public boolean autoCreate = true;
         public String[] defaultPermissions = {"*",
         "-server.stop","-server.broadcast","-server.coop","-server.kick","-server.reload","-server.resetshop","-server.sendmail","-player.tpall",
-        "-player.*.others","-server.*.others"};
+        "-player.*.others","-server.*.others","-permission"};
     }
 
     /* Server options. */

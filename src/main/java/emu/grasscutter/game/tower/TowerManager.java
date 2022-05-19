@@ -109,6 +109,10 @@ public class TowerManager {
     player.getSession().send(new PacketTowerLevelStarCondNotify(currentFloorId, getCurrentLevel()));
   }
 
+  public void setCanUseSkill(int canUse) {
+    player.getSession().send(new PacketCanUseSkillNotify(canUse == 1));
+  }
+
   public void notifyCurLevelRecordChange() {
     player.getSession().send(new PacketTowerCurLevelRecordChangeNotify(currentFloorId, getCurrentLevel()));
   }

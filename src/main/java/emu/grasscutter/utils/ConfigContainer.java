@@ -82,7 +82,7 @@ public class ConfigContainer {
 
     public static class Account {
         public boolean autoCreate = true;
-        public String[] defaultPermissions = {"*",
+        public String[] defaultPermissions = {
         "-server.stop",
         "-server.permission",
         "-server.account",
@@ -94,7 +94,9 @@ public class ConfigContainer {
         "-server.sendmail",
         "-player.tpall",
         "-player.*.others",
-        "-server.*.others"};
+        "-server.*.others",
+        "*"
+        };
     }
 
     /* Server options. */

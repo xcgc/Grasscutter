@@ -36,6 +36,7 @@ import emu.grasscutter.scripts.service.ScriptMonsterSpawnService;
 import emu.grasscutter.scripts.service.ScriptMonsterTideService;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 public class SceneScriptManager {
 	private final Scene scene;
 	private final Map<String, Integer> variables;
@@ -182,15 +183,14 @@ public class SceneScriptManager {
 	public void loadGroupFromScript(SceneGroup group) {
 		group.load(getScene().getId());
 
-		try {
-			// put for this scene
+		if (group.variables != null) {
 			group.variables.forEach(var -> this.getVariables().put(var.name, var.value));
-		    this.sceneGroups.put(group.id, group);
-		    if(group.regions != null){
-			 group.regions.forEach(this::registerRegion);
-		    }
-		} catch (Exception e) {
-			Grasscutter.getLogger().error("Exception: (getVariables) Could not put group for this scene");
+		}
+
+		this.sceneGroups.put(group.id, group);
+
+		if(group.regions != null){
+			group.regions.forEach(this::registerRegion);
 		}
 	}
 	
@@ -276,27 +276,36 @@ public class SceneScriptManager {
 	
 	public void callEvent(int eventType, ScriptArgs params) {
 		try{
+			Grasscutter.getLogger().debug("@ setSceneScriptManager");
 			ScriptLoader.getScriptLib().setSceneScriptManager(this);
 			for (SceneTrigger trigger : this.getTriggersByEvent(eventType)) {
 				try{
+
+					Grasscutter.getLogger().debug("callEvent: ! - nama: "+trigger.name+" - source: "+trigger.source+" ");
+
 					ScriptLoader.getScriptLib().setCurrentGroup(trigger.currentGroup);
 
-					LuaValue ret = callScriptFunc(trigger.condition, trigger.currentGroup, params);
-					Grasscutter.getLogger().trace("Call Condition Trigger {}", trigger.condition);
+					Grasscutter.getLogger().debug("-> Call Condition Trigger {}", trigger.condition);
+					LuaValue ret = callScriptFunc(trigger.condition, trigger.currentGroup, params);					
 
 					if (ret.isboolean() && ret.checkboolean()) {
 						// the SetGroupVariableValueByGroup in tower need the param to record the first stage time
-						callScriptFunc(trigger.action, trigger.currentGroup, params);
-						Grasscutter.getLogger().trace("Call Action Trigger {}", trigger.action);
+						Grasscutter.getLogger().debug("--> Call Action Trigger {}", trigger.action);
+						//ScriptLoader.getScriptLib().SetIsAllowUseSkill(1, 0);
+						callScriptFunc(trigger.action, trigger.currentGroup, params);						
+					}else{
+						Grasscutter.getLogger().debug("--> Call No Action Trigger {}", trigger.action);
 					}
 					//TODO some ret may not bool
 
 				}finally {
+					Grasscutter.getLogger().debug("---> removeCurrentGroup");
 					ScriptLoader.getScriptLib().removeCurrentGroup();
 				}
 			}
 		}finally {
 			// make sure it is removed
+			Grasscutter.getLogger().debug("----> removeSceneScriptManager");
 			ScriptLoader.getScriptLib().removeSceneScriptManager();
 		}
 	}
@@ -325,7 +334,7 @@ public class SceneScriptManager {
 		try{
 			return func.call(ScriptLoader.getScriptLibLua(), args);
 		}catch (LuaError error){
-			ScriptLib.logger.error("[LUA] call trigger failed {},{},{}",name,args,error.getMessage());
+			ScriptLib.logger.error("[LUA] call trigger failed {},{},{}",name,args,error);
 			return LuaValue.valueOf(-1);
 		}
 	}
@@ -346,7 +355,7 @@ public class SceneScriptManager {
 			ScriptLib.logger.info("Null createGadget: "+g.gadget_id+" at pos "+g.pos.toString());
 			return null;
 		}
-		ScriptLib.logger.info("CreateGadget: ID: "+g.gadget_id+" - Tipe:"+entity.getGadgetData().getType().toString()+" - POS:"+g.pos.toString()+"");
+		//ScriptLib.logger.info("CreateGadget: ID: "+g.gadget_id+" - Tipe:"+entity.getGadgetData().getType().toString()+" - POS:"+g.pos.toString()+" - Area:"+g.area_id+"");
 
 		entity.setBlockId(blockId);
 		entity.setConfigId(g.config_id);
@@ -359,7 +368,7 @@ public class SceneScriptManager {
 		// Lua event
 		this.callEvent(EventType.EVENT_GADGET_CREATE, new ScriptArgs(entity.getConfigId()));
 
-		ScriptLib.logger.info("createGadget: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+"  - Name "+entity.getGadgetData().getJsonName()+" - Stats: "+g.state+" ");
+		//ScriptLib.logger.info("createGadget: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+"  - Name "+entity.getGadgetData().getJsonName()+" - Stats: "+g.state+" ");
 
 		return entity;
 	}
@@ -398,11 +407,6 @@ public class SceneScriptManager {
 		this.getScriptMonsterSpawnService()
 				.onMonsterCreatedListener.forEach(action -> action.onNotify(entity));
 		
-		// Lua event
-		callEvent(EventType.EVENT_ANY_MONSTER_LIVE, new ScriptArgs(entity.getConfigId()));		
-
-		ScriptLib.logger.info("createMonster: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+" ");
-
 		return entity;
 	}
 

@@ -311,6 +311,7 @@ public class Scene {
 
 	private void addEntityDirectly(GameEntity entity) {
 		getEntities().put(entity.getId(), entity);
+		entity.onCreate(); // Call entity create event
 	}
 
 	public synchronized void addEntity(GameEntity entity) {
@@ -611,10 +612,10 @@ public class Scene {
 			// Load suites
 			int suite = group.init_config.suite;
 
-			if (suite == 0) {
+			if (suite == 0 || group.suites == null || group.suites.size() == 0) {
 				continue;
 			}
-
+			
 			do {
 				var suiteData = group.getSuiteByIndex(suite);
 				suiteData.sceneTriggers.forEach(getScriptManager()::registerTrigger);
@@ -623,6 +624,7 @@ public class Scene {
 						.map(g -> scriptManager.createGadget(group.id, group.block_id, g)).toList());
 				entities.addAll(suiteData.sceneMonsters.stream()
 						.map(mob -> scriptManager.createMonster(group.id, group.block_id, mob)).toList());
+				
 				suite++;
 			} while (suite < group.init_config.end_suite);
 		}

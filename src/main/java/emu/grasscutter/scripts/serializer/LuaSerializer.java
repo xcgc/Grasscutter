@@ -15,6 +15,8 @@ import com.esotericsoftware.reflectasm.MethodAccess;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 
+import emu.grasscutter.Grasscutter;
+import emu.grasscutter.scripts.ScriptUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,6 +40,10 @@ public class LuaSerializer implements Serializer {
 	
 	public <T> List<T> serializeList(Class<T> type, LuaTable table) {
 		List<T> list = new ArrayList<>();
+		
+		if (table == null) {
+			return list;
+		}
 		
 		try {
 			LuaValue[] keys = table.keys();
@@ -87,7 +93,7 @@ public class LuaSerializer implements Serializer {
 		}
 		
 		try {
-			if(!methodAccessCache.containsKey(type)){
+			if (!methodAccessCache.containsKey(type)) {
 				cacheType(type);
 			}
 			var methodAccess = methodAccessCache.get(type);
@@ -95,9 +101,10 @@ public class LuaSerializer implements Serializer {
 
 			object = (T) constructorCache.get(type).newInstance();
 
-			if(table == null){
+			if (table == null) {
 				return object;
 			}
+			
 			LuaValue[] keys = table.keys();
 			for (LuaValue k : keys) {
 				try {
@@ -125,6 +132,7 @@ public class LuaSerializer implements Serializer {
 				}
 			}
 		} catch (Exception e) {
+			Grasscutter.getLogger().info(ScriptUtils.toMap(table).toString());
 			e.printStackTrace();
 		}
 		

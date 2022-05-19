@@ -628,7 +628,7 @@ public class Scene {
 		}
 
 		scriptManager.meetEntities(entities);
-		Grasscutter.getLogger().info("Scene {} loaded {} group(s)", this.getId(), groups.size());
+		Grasscutter.getLogger().debug("Scene {} loaded {} group(s)", this.getId(), groups.size());
 	}
 
 	public void onUnloadBlock(SceneBlock block) {

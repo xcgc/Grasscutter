@@ -10,11 +10,12 @@ import java.util.List;
 
 import static emu.grasscutter.utils.Language.translate;
 
-@Command(label = "permission", usage = "permission <add|remove> <permission>", permission = "permission", description = "commands.permission.description")
+@Command(label = "permission", usage = "permission <add|remove> <permission>", description = "commands.permission.description")
 public final class PermissionCommand implements CommandHandler {
 
     @Override
     public void execute(Player sender, Player targetPlayer, List<String> args) {
+        
         if (targetPlayer == null) {
             CommandHandler.sendMessage(sender, translate(sender, "commands.execution.need_target"));
             return;

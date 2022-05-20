@@ -5,7 +5,6 @@ import emu.grasscutter.game.entity.EntityGadget;
 import emu.grasscutter.game.entity.EntityMonster;
 import emu.grasscutter.game.entity.GameEntity;
 import emu.grasscutter.game.entity.gadget.GadgetWorktop;
-import emu.grasscutter.game.player.Player;
 import emu.grasscutter.scripts.data.SceneGroup;
 import emu.grasscutter.scripts.data.SceneRegion;
 import emu.grasscutter.server.packet.send.PacketCanUseSkillNotify;
@@ -37,7 +36,7 @@ public class ScriptLib {
 
 	public SceneScriptManager getSceneScriptManager() {
 		// normally not null
-		return Optional.of(sceneScriptManager.get()).get();		
+		return Optional.of(sceneScriptManager.get()).get();
 	}
 
 	private String printTable(LuaTable table){
@@ -272,7 +271,7 @@ public class ScriptLib {
 	}
 	
 	public void PrintContextLog(String msg) {
-		logger.debug("[LUA] " + msg);
+		logger.info("[LUA] " + msg);
 	}
 
 	public int TowerCountTimeStatus(int isDone, int var2){
@@ -303,6 +302,7 @@ public class ScriptLib {
 
 		return 0;
 	}
+
 	public int GetGroupVariableValueByGroup(String name, int groupId){
 		logger.debug("[LUA] Call GetGroupVariableValueByGroup with {},{}",
 				name,groupId);
@@ -311,15 +311,11 @@ public class ScriptLib {
 	}
 
 	public int SetIsAllowUseSkill(int canUse, int var2){
-		logger.warn("[LUA] Call SetIsAllowUseSkill with {},{}",canUse,var2);
-		if(var2 == 0){
-			List<Player> todoa = getSceneScriptManager().getScene().getPlayers();					
-		    logger.warn("[LUA] Call SetIsAllowUseSkill with user "+todoa.size());
-		    for (Player todo : todoa) {
-		     todo.getTowerManager().setCanUseSkill(canUse);
-		    }
-		}	
-		return var2;
+		logger.debug("[LUA] Call SetIsAllowUseSkill with {},{}",
+				canUse,var2);
+
+		getSceneScriptManager().getScene().broadcastPacket(new PacketCanUseSkillNotify(canUse == 1));
+		return 0;
 	}
 
 	public int KillEntityByConfigId(LuaTable table){

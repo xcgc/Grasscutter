@@ -124,7 +124,7 @@ public class ConfigContainer {
         /* This is the port used in the default region. */
         public int accessPort = 0;
         
-        public boolean enableScriptInBigWorld = false;
+        public boolean enableScriptInBigWorld = true;
         public boolean enableConsole = true;
         public GameOptions gameOptions = new GameOptions();
         public JoinOptions joinOptions = new JoinOptions();
@@ -175,8 +175,8 @@ public class ConfigContainer {
 		public boolean CMD_NoGiveTes = true;
         public boolean CMD_ListOnline = false;
 		public boolean DropMo = true;
-		public boolean DungeonMT = true;
-        public boolean AbyssMT = true;
+		public boolean DungeonMT = false;
+        public boolean AbyssMT = false;
 
         public static class InventoryLimits {
             public int weapons = 2000;

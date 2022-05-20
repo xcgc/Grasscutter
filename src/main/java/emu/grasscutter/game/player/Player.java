@@ -1,26 +1,6 @@
 package emu.grasscutter.game.player;
 
-import static emu.grasscutter.Configuration.GAME_OPTIONS;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import dev.morphia.annotations.Entity;
-import dev.morphia.annotations.Id;
-import dev.morphia.annotations.IndexOptions;
-import dev.morphia.annotations.Indexed;
-import dev.morphia.annotations.PostLoad;
-import dev.morphia.annotations.Transient;
+import dev.morphia.annotations.*;
 import emu.grasscutter.GameConstants;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
@@ -30,6 +10,7 @@ import emu.grasscutter.game.Account;
 import emu.grasscutter.game.CoopRequest;
 import emu.grasscutter.game.ability.AbilityManager;
 import emu.grasscutter.game.avatar.Avatar;
+import emu.grasscutter.game.avatar.AvatarProfileData;
 import emu.grasscutter.game.avatar.AvatarStorage;
 import emu.grasscutter.game.entity.EntityGadget;
 import emu.grasscutter.game.entity.EntityItem;
@@ -42,74 +23,44 @@ import emu.grasscutter.game.inventory.GameItem;
 import emu.grasscutter.game.inventory.Inventory;
 import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.mail.MailHandler;
-import emu.grasscutter.game.managers.SotSManager;
-import emu.grasscutter.game.managers.MapMarkManager.MapMark;
-import emu.grasscutter.game.managers.MapMarkManager.MapMarksManager;
 import emu.grasscutter.game.managers.StaminaManager.StaminaManager;
+import emu.grasscutter.game.managers.SotSManager;
 import emu.grasscutter.game.props.ActionReason;
 import emu.grasscutter.game.props.PlayerProperty;
 import emu.grasscutter.game.props.SceneType;
 import emu.grasscutter.game.quest.QuestManager;
 import emu.grasscutter.game.shop.ShopLimit;
+import emu.grasscutter.game.managers.MapMarkManager.*;
 import emu.grasscutter.game.tower.TowerManager;
 import emu.grasscutter.game.world.Scene;
 import emu.grasscutter.game.world.World;
 import emu.grasscutter.net.packet.BasePacket;
+import emu.grasscutter.net.proto.*;
 import emu.grasscutter.net.proto.AbilityInvokeEntryOuterClass.AbilityInvokeEntry;
 import emu.grasscutter.net.proto.AttackResultOuterClass.AttackResult;
 import emu.grasscutter.net.proto.CombatInvokeEntryOuterClass.CombatInvokeEntry;
 import emu.grasscutter.net.proto.InteractTypeOuterClass.InteractType;
 import emu.grasscutter.net.proto.MpSettingTypeOuterClass.MpSettingType;
 import emu.grasscutter.net.proto.OnlinePlayerInfoOuterClass.OnlinePlayerInfo;
-import emu.grasscutter.net.proto.PlayerApplyEnterMpResultNotifyOuterClass;
 import emu.grasscutter.net.proto.PlayerLocationInfoOuterClass.PlayerLocationInfo;
-import emu.grasscutter.net.proto.PlayerWorldLocationInfoOuterClass;
 import emu.grasscutter.net.proto.ProfilePictureOuterClass.ProfilePicture;
-import emu.grasscutter.net.proto.ShowAvatarInfoOuterClass;
 import emu.grasscutter.net.proto.SocialDetailOuterClass.SocialDetail;
-import emu.grasscutter.net.proto.SocialShowAvatarInfoOuterClass;
 import emu.grasscutter.server.event.player.PlayerJoinEvent;
 import emu.grasscutter.server.event.player.PlayerQuitEvent;
 import emu.grasscutter.server.game.GameServer;
 import emu.grasscutter.server.game.GameSession;
-import emu.grasscutter.server.packet.send.PacketAbilityInvocationsNotify;
-import emu.grasscutter.server.packet.send.PacketAllWidgetDataNotify;
-import emu.grasscutter.server.packet.send.PacketAvatarAddNotify;
-import emu.grasscutter.server.packet.send.PacketAvatarDataNotify;
-import emu.grasscutter.server.packet.send.PacketAvatarExpeditionDataNotify;
-import emu.grasscutter.server.packet.send.PacketAvatarGainCostumeNotify;
-import emu.grasscutter.server.packet.send.PacketAvatarGainFlycloakNotify;
-import emu.grasscutter.server.packet.send.PacketCardProductRewardNotify;
-import emu.grasscutter.server.packet.send.PacketClientAbilityInitFinishNotify;
-import emu.grasscutter.server.packet.send.PacketCodexDataFullNotify;
-import emu.grasscutter.server.packet.send.PacketCombatInvocationsNotify;
-import emu.grasscutter.server.packet.send.PacketFinishedParentQuestNotify;
-import emu.grasscutter.server.packet.send.PacketGadgetInteractRsp;
-import emu.grasscutter.server.packet.send.PacketHomeComfortInfoNotify;
-import emu.grasscutter.server.packet.send.PacketOpenStateUpdateNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerApplyEnterMpResultNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerDataNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerEnterSceneNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerHomeCompInfoNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerLevelRewardUpdateNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerPropNotify;
-import emu.grasscutter.server.packet.send.PacketPlayerStoreNotify;
-import emu.grasscutter.server.packet.send.PacketPrivateChatNotify;
-import emu.grasscutter.server.packet.send.PacketQuestListNotify;
-import emu.grasscutter.server.packet.send.PacketScenePlayerLocationNotify;
-import emu.grasscutter.server.packet.send.PacketServerCondMeetQuestListUpdateNotify;
-import emu.grasscutter.server.packet.send.PacketSetNameCardRsp;
-import emu.grasscutter.server.packet.send.PacketStoreWeightLimitNotify;
-import emu.grasscutter.server.packet.send.PacketUnlockNameCardNotify;
-import emu.grasscutter.server.packet.send.PacketWidgetGadgetAllDataNotify;
-import emu.grasscutter.server.packet.send.PacketWorldPlayerLocationNotify;
-import emu.grasscutter.server.packet.send.PacketWorldPlayerRTTNotify;
+import emu.grasscutter.server.packet.send.*;
 import emu.grasscutter.utils.DateHelper;
-import emu.grasscutter.utils.MessageHandler;
 import emu.grasscutter.utils.Position;
+import emu.grasscutter.utils.MessageHandler;
 import emu.grasscutter.utils.Utils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import static emu.grasscutter.Configuration.*;
 
 @Entity(value = "players", useDiscriminator = false)
 public class Player {
@@ -935,7 +886,7 @@ public class Player {
 		return this.getMailHandler().replaceMailByIndex(index, message);
 	}
 	
-	public void interactWith(int gadgetEntityId) {
+	public void interactWith(int gadgetEntityId, InterOpTypeOuterClass.InterOpType opType) {
 		GameEntity entity = getScene().getEntityById(gadgetEntityId);
 
 		if (entity == null) {
@@ -968,7 +919,7 @@ public class Player {
 				return;
 			}
 			
-			boolean shouldDelete = gadget.getContent().onInteract(this);
+			boolean shouldDelete = gadget.getContent().onInteract(this, opType);
 			
 			if (shouldDelete) {
 				entity.getScene().removeEntity(entity);

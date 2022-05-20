@@ -1,16 +1,5 @@
 package emu.grasscutter.scripts;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import org.luaj.vm2.LuaError;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
-
 import ch.ethz.globis.phtree.PhTree;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
@@ -22,20 +11,21 @@ import emu.grasscutter.game.entity.GameEntity;
 import emu.grasscutter.game.world.Scene;
 import emu.grasscutter.net.proto.VisionTypeOuterClass;
 import emu.grasscutter.scripts.constants.EventType;
-import emu.grasscutter.scripts.data.SceneBlock;
-import emu.grasscutter.scripts.data.SceneConfig;
-import emu.grasscutter.scripts.data.SceneGadget;
-import emu.grasscutter.scripts.data.SceneGroup;
-import emu.grasscutter.scripts.data.SceneMeta;
-import emu.grasscutter.scripts.data.SceneMonster;
-import emu.grasscutter.scripts.data.SceneRegion;
-import emu.grasscutter.scripts.data.SceneSuite;
-import emu.grasscutter.scripts.data.SceneTrigger;
-import emu.grasscutter.scripts.data.ScriptArgs;
+import emu.grasscutter.scripts.data.*;
 import emu.grasscutter.scripts.service.ScriptMonsterSpawnService;
 import emu.grasscutter.scripts.service.ScriptMonsterTideService;
+import io.netty.util.concurrent.FastThreadLocalThread;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class SceneScriptManager {
 	private final Scene scene;
@@ -58,6 +48,12 @@ public class SceneScriptManager {
 	 * blockid - loaded groupSet
 	 */
 	private Int2ObjectMap<Set<SceneGroup>> loadedGroupSetPerBlock;
+	public static final ExecutorService eventExecutor;
+	static {
+		eventExecutor = new ThreadPoolExecutor(4, 4,
+				60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(100),
+				FastThreadLocalThread::new, new ThreadPoolExecutor.AbortPolicy());
+	}
 	public SceneScriptManager(Scene scene) {
 		this.scene = scene;
 		this.triggers = new HashMap<>();
@@ -148,11 +144,7 @@ public class SceneScriptManager {
 			for (SceneGroup group : block.groups) {
 				if (group.id == groupId) {
 					if(!group.isLoaded()){
-						try {
-							getScene().onLoadGroup(List.of(group));
-						} catch (Exception e) {
-							Grasscutter.getLogger().error("Error getScene().onLoadGroup");
-						}						
+						getScene().onLoadGroup(List.of(group));
 					}
 					return group;
 				}
@@ -230,7 +222,7 @@ public class SceneScriptManager {
 		}
 
 		var toCreate = gadgets.stream()
-				.map(g -> createGadget(g.groupId, group.block_id, g))
+				.map(g -> createGadget(g.group.id, group.block_id, g))
 				.filter(Objects::nonNull)
 				.toList();
 		this.addEntities(toCreate);
@@ -273,44 +265,44 @@ public class SceneScriptManager {
 		getScene().addEntity(createMonster(group.id, group.block_id, group.monsters.get(configId)));
 	}
 	// Events
-	
-	public void callEvent(int eventType, ScriptArgs params) {
+	public void callEvent(int eventType, ScriptArgs params){
+		/**
+		 * We use ThreadLocal to trans SceneScriptManager context to ScriptLib, to avoid eval script for every groups' trigger in every scene instances.
+		 * But when callEvent is called in a ScriptLib func, it may cause NPE because the inner call cleans the ThreadLocal so that outer call could not get it.
+		 * e.g. CallEvent -> set -> ScriptLib.xxx -> CallEvent -> set -> remove -> NPE -> (remove)
+		 * So we use thread pool to clean the stack to avoid this new issue.
+		 */
+		eventExecutor.submit(() -> this.realCallEvent(eventType, params));
+	}
+
+	private void realCallEvent(int eventType, ScriptArgs params) {
 		try{
-			Grasscutter.getLogger().debug("@ setSceneScriptManager");
 			ScriptLoader.getScriptLib().setSceneScriptManager(this);
 			for (SceneTrigger trigger : this.getTriggersByEvent(eventType)) {
 				try{
-
-					Grasscutter.getLogger().debug("callEvent: ! - nama: "+trigger.name+" - source: "+trigger.source+" ");
-
 					ScriptLoader.getScriptLib().setCurrentGroup(trigger.currentGroup);
 
-					Grasscutter.getLogger().debug("-> Call Condition Trigger {}", trigger.condition);
-					LuaValue ret = callScriptFunc(trigger.condition, trigger.currentGroup, params);					
+					LuaValue ret = callScriptFunc(trigger.condition, trigger.currentGroup, params);
+					Grasscutter.getLogger().trace("Call Condition Trigger {}", trigger.condition);
 
 					if (ret.isboolean() && ret.checkboolean()) {
 						// the SetGroupVariableValueByGroup in tower need the param to record the first stage time
-						Grasscutter.getLogger().debug("--> Call Action Trigger {}", trigger.action);
-						//ScriptLoader.getScriptLib().SetIsAllowUseSkill(1, 0);
-						callScriptFunc(trigger.action, trigger.currentGroup, params);						
-					}else{
-						Grasscutter.getLogger().debug("--> Call No Action Trigger {}", trigger.action);
+						callScriptFunc(trigger.action, trigger.currentGroup, params);
+						Grasscutter.getLogger().trace("Call Action Trigger {}", trigger.action);
 					}
 					//TODO some ret may not bool
 
 				}finally {
-					Grasscutter.getLogger().debug("---> removeCurrentGroup");
 					ScriptLoader.getScriptLib().removeCurrentGroup();
 				}
 			}
 		}finally {
 			// make sure it is removed
-			Grasscutter.getLogger().debug("----> removeSceneScriptManager");
 			ScriptLoader.getScriptLib().removeSceneScriptManager();
 		}
 	}
 
-	public LuaValue callScriptFunc(String funcName, SceneGroup group, ScriptArgs params){
+	private LuaValue callScriptFunc(String funcName, SceneGroup group, ScriptArgs params){
 		LuaValue funcLua = null;
 		if (funcName != null && !funcName.isEmpty()) {
 			funcLua = (LuaValue) group.getBindings().get(funcName);
@@ -334,7 +326,7 @@ public class SceneScriptManager {
 		try{
 			return func.call(ScriptLoader.getScriptLibLua(), args);
 		}catch (LuaError error){
-			ScriptLib.logger.error("[LUA] call trigger failed {},{},{}",name,args,error);
+			ScriptLib.logger.error("[LUA] call trigger failed {},{},{}",name,args,error.getMessage());
 			return LuaValue.valueOf(-1);
 		}
 	}
@@ -348,27 +340,20 @@ public class SceneScriptManager {
 	}
 
 	public EntityGadget createGadget(int groupId, int blockId, SceneGadget g) {
-
 		EntityGadget entity = new EntityGadget(getScene(), g.gadget_id, g.pos);
 
 		if (entity.getGadgetData() == null){
-			ScriptLib.logger.info("Null createGadget: "+g.gadget_id+" at pos "+g.pos.toString());
 			return null;
 		}
-		//ScriptLib.logger.info("CreateGadget: ID: "+g.gadget_id+" - Tipe:"+entity.getGadgetData().getType().toString()+" - POS:"+g.pos.toString()+" - Area:"+g.area_id+"");
 
 		entity.setBlockId(blockId);
 		entity.setConfigId(g.config_id);
 		entity.setGroupId(groupId);
-		entity.getRotation().set(g.rot);		 
-		entity.setState(g.state);		
+		entity.getRotation().set(g.rot);
+		entity.setState(g.state);
 		entity.setPointType(g.point_type);
+		entity.setMetaGadget(g);
 		entity.buildContent();
-
-		// Lua event
-		this.callEvent(EventType.EVENT_GADGET_CREATE, new ScriptArgs(entity.getConfigId()));
-
-		//ScriptLib.logger.info("createGadget: BlockId "+entity.getBlockId()+" - GroupId "+entity.getGroupId()+" - getEntityType "+entity.getEntityType()+" - SceneType "+entity.getScene().getSceneType()+"  - Name "+entity.getGadgetData().getJsonName()+" - Stats: "+g.state+" ");
 
 		return entity;
 	}

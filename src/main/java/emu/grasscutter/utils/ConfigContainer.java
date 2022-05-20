@@ -97,6 +97,7 @@ public class ConfigContainer {
         "-server.*.others",
         "*"
         };
+        public int maxPlayer = 1000;
     }
 
     /* Server options. */

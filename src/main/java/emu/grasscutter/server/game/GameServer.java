@@ -59,13 +59,22 @@ public final class GameServer extends KcpServer {
 	private final CombineManger combineManger;
 	private final TowerScheduleManager towerScheduleManager;
 	private final WorldDataManager worldDataManager;
-	public GameServer() {
-		this(new InetSocketAddress(
-				GAME_INFO.bindAddress,
-				GAME_INFO.bindPort
-		));
-	}
 	
+	private static InetSocketAddress getAdapterInetSocketAddress(){
+		InetSocketAddress inetSocketAddress = null;
+		if(GAME_INFO.bindAddress.equals("")){
+			inetSocketAddress=new InetSocketAddress(GAME_INFO.bindPort);
+		}else{
+			inetSocketAddress=new InetSocketAddress(
+					GAME_INFO.bindAddress,
+					GAME_INFO.bindPort
+			);
+		}
+		return inetSocketAddress;
+	}
+	public GameServer() {
+		this(getAdapterInetSocketAddress());
+	}
 	public GameServer(InetSocketAddress address) {
 		super(address);
 

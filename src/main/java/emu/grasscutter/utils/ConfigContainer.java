@@ -136,8 +136,7 @@ public class ConfigContainer {
 
     public static class Dispatch {
         public Region[] regions = {};
-
-        public String defaultName = "Yuuki";
+        public String defaultName = "global";
     }
 
     public static class Encryption {
@@ -207,7 +206,7 @@ public class ConfigContainer {
 
         public static class Mail {
             public String title = "Welcome to Yuuki Server";
-            public String content = "tes";
+            public String content = "Hi";
             public String sender = "Yuuki";
             public emu.grasscutter.game.mail.Mail.MailItem[] items = {
                     // Intertwined Fate

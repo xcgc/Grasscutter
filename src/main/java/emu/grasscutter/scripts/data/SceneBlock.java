@@ -65,9 +65,7 @@ public class SceneBlock {
 			groups.forEach(g -> g.block_id = id);
 			SceneIndexManager.buildIndex(this.sceneGroupIndex, groups, g -> g.pos.toLongArray());
 		} catch (ScriptException e) {
-			Grasscutter.getLogger().error("ScriptException: Error loading block " + id + " in scene " + sceneId, e);
-		} catch (Exception e) {
-			Grasscutter.getLogger().error("Exception: Error loading block " + id + " in scene " + sceneId);
+			Grasscutter.getLogger().error("Error loading block " + id + " in scene " + sceneId, e);
 		}
 		Grasscutter.getLogger().info("scene {} block {} is loaded successfully.", sceneId, id);
 		return this;

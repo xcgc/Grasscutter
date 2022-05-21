@@ -153,17 +153,13 @@ public class TowerManager {
     this.entryScene = 0;
   }
 
-  public boolean canEnterScheduleFloor() {
-    try {
-      if (!recordMap.containsKey(player.getServer().getTowerScheduleManager().getLastEntranceFloor())) {
+  public boolean canEnterScheduleFloor(){
+    if(!recordMap.containsKey(player.getServer().getTowerScheduleManager().getLastEntranceFloor())){
         return false;
-      }
-    } catch (Exception e) {
-      return false;
     }
     return recordMap.get(player.getServer().getTowerScheduleManager().getLastEntranceFloor())
-        .getStarCount() >= 6;
-  }
+            .getStarCount() >= 6;
+}
 
   public void mirrorTeamSetUp(int teamId) {
     // use team user choose

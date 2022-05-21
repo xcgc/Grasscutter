@@ -331,12 +331,8 @@ public class GameItem {
 		}
 		
 		// Add random stat
-    try {
-      ReliquaryAffixData affixData = randomList.next();
-		  this.getAppendPropIdList().add(affixData.getId());
-    } catch (Exception e) {
-      //TODO: handle exception
-    }
+		ReliquaryAffixData affixData = randomList.next();
+		this.getAppendPropIdList().add(affixData.getId());
 	}
 
 	@PostLoad 

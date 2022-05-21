@@ -131,15 +131,13 @@ public class TeamManager {
 	}
 	
 	public TeamInfo getCurrentTeamInfo() {
-    try {
-      if (useTemporarilyTeamIndex >= 0  && useTemporarilyTeamIndex < temporaryTeam.size()){
-        return temporaryTeam.get(useTemporarilyTeamIndex);
-      }
-      if (this.getPlayer().isInMultiplayer()) {
-        return this.getMpTeam();
-      }
-    } catch (Exception e) {      
-    }		
+		if (useTemporarilyTeamIndex >= 0 &&
+				useTemporarilyTeamIndex < temporaryTeam.size()){
+			return temporaryTeam.get(useTemporarilyTeamIndex);
+		}
+		if (this.getPlayer().isInMultiplayer()) {
+			return this.getMpTeam();
+		}
 		return this.getTeams().get(this.currentTeamIndex);
 	}
 	

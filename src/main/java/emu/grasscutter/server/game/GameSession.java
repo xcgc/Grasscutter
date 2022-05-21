@@ -250,7 +250,7 @@ public class GameSession extends KcpChannel {
 				getServer().getPacketHandler().handle(this, opcode, header, payload);
 			}
 		} catch (Exception e) {
-      Grasscutter.getLogger().error("BIG PROBLEM (C4): ");
+            Grasscutter.getLogger().error("BIG PROBLEM (C4): ");
 			e.printStackTrace();      
 		} finally {
 			data.release();

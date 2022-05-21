@@ -1,24 +1,23 @@
 package emu.grasscutter.scripts.data;
 
-import emu.grasscutter.Grasscutter;
-import emu.grasscutter.scripts.ScriptLoader;
-import emu.grasscutter.utils.Position;
-import lombok.Setter;
-import lombok.ToString;
-
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptException;
-
-import org.luaj.vm2.LuaTable;
-import org.luaj.vm2.LuaValue;
+import static emu.grasscutter.Configuration.SCRIPT;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static emu.grasscutter.Configuration.SCRIPT;
+import javax.script.Bindings;
+import javax.script.CompiledScript;
+import javax.script.ScriptException;
+
+import org.luaj.vm2.LuaValue;
+
+import emu.grasscutter.Grasscutter;
+import emu.grasscutter.scripts.ScriptLoader;
+import emu.grasscutter.utils.Position;
+import lombok.Setter;
+import lombok.ToString;
 
 @ToString
 @Setter
@@ -148,15 +147,11 @@ public class SceneGroup {
 				);
 			}
 
-		} catch (NullPointerException e) {
-			Grasscutter.getLogger().error("NullPointerException: Error loading group " + id + " in scene " + sceneId,e);	
 		} catch (ScriptException e) {
-			Grasscutter.getLogger().error("ScriptException: Error loading group " + id + " in scene " + sceneId,e);		
-		} catch (Exception e) {
-			Grasscutter.getLogger().error("Exception: Error loading group " + id + " in scene " + sceneId);
+			Grasscutter.getLogger().error("Error loading group " + id + " in scene " + sceneId, e);
 		}
 		
-		Grasscutter.getLogger().debug("group {} in scene {} is loaded successfully123", id, sceneId);
+		Grasscutter.getLogger().info("group {} in scene {} is loaded successfully.", id, sceneId);
 		return this;
 	}
 }

@@ -235,7 +235,6 @@ public class Player {
 		this.avatars = new AvatarStorage(this);
 		this.friendsList = new FriendsList(this);
 		this.mailHandler = new MailHandler(this);
-		this.towerManager = new TowerManager(this);
 		this.abilityManager = new AbilityManager(this);
 		this.setQuestManager(new QuestManager(this));
 		this.pos = new Position();
@@ -538,7 +537,7 @@ public class Player {
 	}
 
 	public TowerManager getTowerManager() {
-		return towerManager;
+		return this.towerManager;
 	}
 
 	public QuestManager getQuestManager() {
@@ -1316,6 +1315,10 @@ public class Player {
 				this.getTeamManager().setCurrentCharacterIndex(LastIndexAvatars);
 			}
 
+		}
+
+		if (this.getTowerManager() == null) {
+			this.towerManager = new TowerManager(this);
 		}
 
 		if (this.getCodex() == null) {

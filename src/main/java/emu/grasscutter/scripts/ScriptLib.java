@@ -326,7 +326,7 @@ public class ScriptLib {
 	}
 	
 	public void PrintContextLog(String msg) {
-		logger.info("[LUA] " + msg);
+		logger.debug("[LUA] " + msg);
 	}
 
 	public int TowerCountTimeStatus(int isDone, int var2){

@@ -584,7 +584,7 @@ public class Scene {
 				.toList();
 
 		onLoadGroup(groups);
-		Grasscutter.getLogger().info("Scene {} Block {} loaded.", this.getId(), block.id);
+		Grasscutter.getLogger().debug("Scene {} Block {} loaded.", this.getId(), block.id);
 	}
 
 	public void onLoadGroup(List<SceneGroup> groups){
@@ -638,7 +638,7 @@ public class Scene {
 		scriptManager.meetEntities(entities);
 		//scriptManager.callEvent(EventType.EVENT_GROUP_LOAD, null);
 		//groups.forEach(g -> scriptManager.callEvent(EventType.EVENT_GROUP_LOAD, null));
-		Grasscutter.getLogger().info("Scene {} loaded {} group(s)", this.getId(), groups.size());
+		Grasscutter.getLogger().debug("Scene {} loaded {} group(s)", this.getId(), groups.size());
 	}
 
 	public void onUnloadBlock(SceneBlock block) {
@@ -659,7 +659,7 @@ public class Scene {
 			}
 		}
 		scriptManager.getLoadedGroupSetPerBlock().remove(block.id);
-		Grasscutter.getLogger().info("Scene {} Block {} is unloaded.", this.getId(), block.id);
+		Grasscutter.getLogger().debug("Scene {} Block {} is unloaded.", this.getId(), block.id);
 	}
 
 	// Gadgets

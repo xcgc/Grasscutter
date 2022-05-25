@@ -49,7 +49,6 @@ import emu.grasscutter.game.managers.MapMarkManager.MapMark;
 import emu.grasscutter.game.managers.MapMarkManager.MapMarksManager;
 import emu.grasscutter.game.managers.StaminaManager.StaminaManager;
 import emu.grasscutter.game.props.ActionReason;
-import emu.grasscutter.game.props.EntityType;
 import emu.grasscutter.game.props.PlayerProperty;
 import emu.grasscutter.game.props.SceneType;
 import emu.grasscutter.game.quest.QuestManager;
@@ -64,6 +63,7 @@ import emu.grasscutter.net.proto.CombatInvokeEntryOuterClass.CombatInvokeEntry;
 import emu.grasscutter.net.proto.InteractTypeOuterClass.InteractType;
 import emu.grasscutter.net.proto.MpSettingTypeOuterClass.MpSettingType;
 import emu.grasscutter.net.proto.OnlinePlayerInfoOuterClass.OnlinePlayerInfo;
+import emu.grasscutter.net.proto.InterOpTypeOuterClass;
 import emu.grasscutter.net.proto.PlayerApplyEnterMpResultNotifyOuterClass;
 import emu.grasscutter.net.proto.PlayerLocationInfoOuterClass.PlayerLocationInfo;
 import emu.grasscutter.net.proto.PlayerWorldLocationInfoOuterClass;
@@ -981,8 +981,8 @@ public class Player {
 	public boolean replaceMailByIndex(int index, Mail message) {
 		return this.getMailHandler().replaceMailByIndex(index, message);
 	}
-
-	public void interactWith(int gadgetEntityId) {
+	
+	public void interactWith(int gadgetEntityId, InterOpTypeOuterClass.InterOpType opType) {
 		GameEntity entity = getScene().getEntityById(gadgetEntityId);
 
 		if (entity == null) {
@@ -1010,22 +1010,20 @@ public class Player {
 				else
 					this.getScene().broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_PICK_ITEM));
 			}
-		} else if (entity instanceof EntityGadget) {
-			EntityGadget gadget = (EntityGadget) entity;
-
-			if (gadget.getGadgetData().getType() == EntityType.RewardStatue) {
-				if (scene.getChallenge() != null) {
-					scene.getChallenge().getStatueDrops(this);
-				}
-
-				this.sendPacket(new PacketGadgetInteractRsp(gadget, InteractType.INTERACT_OPEN_STATUE));
+		} else if (entity instanceof EntityGadget gadget) {
+			if (gadget.getContent() == null) {
+				return;
+			}
+			
+			boolean shouldDelete = gadget.getContent().onInteract(this, opType);
+			
+			if (shouldDelete) {
+				entity.getScene().removeEntity(entity);
 			}
 		} else {
 			// Delete directly
 			entity.getScene().removeEntity(entity);
 		}
-
-		return;
 	}
 
 	public void onPause() {

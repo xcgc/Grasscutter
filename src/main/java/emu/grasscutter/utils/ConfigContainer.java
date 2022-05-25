@@ -129,7 +129,7 @@ public class ConfigContainer {
         /* This is the port used in the default region. */
         public int accessPort = 0;
         
-        public boolean enableScriptInBigWorld = false;
+        public boolean enableScriptInBigWorld = true;
         public boolean enableConsole = true;
         public GameOptions gameOptions = new GameOptions();
         public JoinOptions joinOptions = new JoinOptions();
@@ -168,8 +168,8 @@ public class ConfigContainer {
 
         public boolean watchGachaConfig = false;
         public boolean enableShopItems = true;
-        public boolean staminaUsage = false;
-        public boolean energyUsage = false;
+        public boolean staminaUsage = true;
+        public boolean energyUsage = true;
         public Rates rates = new Rates();
 
         // DockerGC

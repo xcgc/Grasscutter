@@ -81,9 +81,11 @@ public class DungeonManager {
 	}
 
 	public void exitDungeon(Player player) {
-		if (player.getScene().getSceneType() != SceneType.SCENE_DUNGEON) {
-			return;
-		}
+		if(player.getScene() == null)
+		 return;
+
+		if (player.getScene().getSceneType() != SceneType.SCENE_DUNGEON)
+		 return;
 		
 		// Get previous scene
 		int prevScene = player.getScene().getPrevScene() > 0 ? player.getScene().getPrevScene() : 3;

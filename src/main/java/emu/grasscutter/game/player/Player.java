@@ -538,7 +538,7 @@ public class Player {
 	}
 
 	public TowerManager getTowerManager() {
-		return this.towerManager;
+		return towerManager;
 	}
 
 	public QuestManager getQuestManager() {
@@ -981,7 +981,7 @@ public class Player {
 	public boolean replaceMailByIndex(int index, Mail message) {
 		return this.getMailHandler().replaceMailByIndex(index, message);
 	}
-	
+
 	public void interactWith(int gadgetEntityId, InterOpTypeOuterClass.InterOpType opType) {
 		GameEntity entity = getScene().getEntityById(gadgetEntityId);
 
@@ -1014,9 +1014,9 @@ public class Player {
 			if (gadget.getContent() == null) {
 				return;
 			}
-			
+
 			boolean shouldDelete = gadget.getContent().onInteract(this, opType);
-			
+
 			if (shouldDelete) {
 				entity.getScene().removeEntity(entity);
 			}
@@ -1411,9 +1411,8 @@ public class Player {
 		getStaminaManager().stopSustainedStaminaHandler();
 
 		// force to leave the dungeon
-		if (getScene().getSceneType() == SceneType.SCENE_DUNGEON) {
-			this.getServer().getDungeonManager().exitDungeon(this);
-		}
+		this.getServer().getDungeonManager().exitDungeon(this);
+
 		// Leave world
 		if (this.getWorld() != null) {
 			this.getWorld().removePlayer(this);

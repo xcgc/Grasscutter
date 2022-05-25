@@ -45,7 +45,7 @@ import static emu.grasscutter.Configuration.*;
 public final class Grasscutter {
 	private static final Logger log = (Logger) LoggerFactory.getLogger(Grasscutter.class);
 	private static LineReader consoleLineReader = null;
-	
+
 	private static Language language;
 
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -60,7 +60,7 @@ public final class Grasscutter {
 
 	public static final Reflections reflector = new Reflections("emu.grasscutter");
 	public static ConfigContainer config;
-  
+
 	static {
 		// Declare logback configuration.
 		System.setProperty("logback.configurationFile", "src/main/resources/logback.xml");
@@ -77,7 +77,46 @@ public final class Grasscutter {
 		Utils.startupCheck();
 	}
 
-  	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
+
+		// setup UncaughtExceptionHandler
+		// http://www.java2s.com/example/java-api/java/lang/thread/setdefaultuncaughtexceptionhandler-1-18.html
+		Thread.UncaughtExceptionHandler handler = (thread, cause) -> {
+
+			String message = "";
+			String metode = "ZERO";
+
+			// Metode get message
+			if (cause != null && cause.getMessage() != null && cause.getMessage().isBlank()) {
+				metode = "1";
+				message = cause.getMessage();
+			} else if (cause.getCause() != null && cause.getCause().getMessage() != null
+					&& cause.getCause().getMessage().isBlank()) {
+				metode = "2";
+				message = cause.getCause().getMessage();
+			} else {
+				metode = "3";
+				StringWriter sw = new StringWriter();
+				cause.printStackTrace(new PrintWriter(sw));
+				message = sw.toString();
+			}
+
+			// fiter messages
+			String[] lines = message.split(System.getProperty("line.separator"));
+			if (lines[0] != null && !lines[0].isEmpty()) {
+				message = lines[0];
+			}
+			if (message.matches("(.*)OutOfMemoryError(.*)")) {
+				GameServer.doExit(0, "(2) Trying to exit program because memory is full");
+			} else {
+				Grasscutter.getLogger().error("BIG PROBLEM Thread (C" + metode + "): " + message);
+				// thread.interrupt();
+			}
+
+		};
+		
+		Thread.setDefaultUncaughtExceptionHandler(handler);
+		Thread.currentThread().setUncaughtExceptionHandler(handler);
 
 		Crypto.loadKeys(); // Load keys from buffers.
 
@@ -85,45 +124,49 @@ public final class Grasscutter {
 		boolean exitEarly = false;
 		for (String arg : args) {
 			switch (arg.toLowerCase()) {
-        case "-boot" -> {
-          Grasscutter.getLogger().info("Boot DockerGC");
+				case "-boot" -> {
+					Grasscutter.getLogger().info("Boot DockerGC");
 					exitEarly = true;
 				}
 				case "-handbook" -> {
-					Tools.createGmHandbook(); exitEarly = true;
+					Tools.createGmHandbook();
+					exitEarly = true;
 				}
 				case "-gachamap" -> {
-					Tools.createGachaMapping(DATA("gacha_mappings.js")); exitEarly = true;
+					Tools.createGachaMapping(DATA("gacha_mappings.js"));
+					exitEarly = true;
 				}
 				case "-version" -> {
-					System.out.println("Grasscutter version: " + BuildConfig.VERSION + "-" + BuildConfig.GIT_HASH); exitEarly = true;
+					System.out.println("Grasscutter version: " + BuildConfig.VERSION + "-" + BuildConfig.GIT_HASH);
+					exitEarly = true;
 				}
 			}
 		}
-		
+
 		// Exit early if argument sets it.
-		if(exitEarly) GameServer.doExit(0,"exitEarly");
-	
+		if (exitEarly)
+			GameServer.doExit(0, "exitEarly");
+
 		// Initialize server.
 		Grasscutter.getLogger().info(translate("messages.status.starting"));
-	
+
 		// Load all resources.
 		Grasscutter.updateDayOfWeek();
 		ResourceLoader.loadAll();
 		ScriptLoader.init();
-	
+
 		// Initialize database.
 		DatabaseManager.initialize();
-		
+
 		// Initialize the default authentication system.
 		authenticationSystem = new DefaultAuthentication();
-	
+
 		// Create server instances.
 		httpServer = new HttpServer();
 		gameServer = new GameServer();
 		// Create a server hook instance with both servers.
 		new ServerHook(gameServer, httpServer);
-		
+
 		// Create plugin manager instance.
 		pluginManager = new PluginManager();
 		// Add HTTP routes after loading plugins.
@@ -136,10 +179,10 @@ public final class Grasscutter {
 		httpServer.addRouter(DispatchHandler.class);
 		httpServer.addRouter(GachaHandler.class);
 		httpServer.addRouter(DocumentationServerHandler.class);
-		
+
 		// TODO: find a better place?
 		StaminaManager.initialize();
-	
+
 		// Start servers.
 		var runMode = SERVER.runMode;
 		if (runMode == ServerRunMode.HYBRID) {
@@ -153,18 +196,18 @@ public final class Grasscutter {
 			getLogger().error(translate("messages.status.run_mode_error", runMode));
 			getLogger().error(translate("messages.status.run_mode_help"));
 			getLogger().error(translate("messages.status.shutdown"));
-			GameServer.doExit(0,"run_mode_error");
+			GameServer.doExit(0, "run_mode_error");
 		}
-	
+
 		// Enable all plugins.
 		pluginManager.enablePlugins();
-	
+
 		// Hook into shutdown event.
 		Runtime.getRuntime().addShutdownHook(new Thread(Grasscutter::onShutdown));
-	
+
 		// Open console.
 		startConsole();
- 	}
+	}
 
 	/**
 	 * Server shutdown event.
@@ -177,12 +220,12 @@ public final class Grasscutter {
 	/*
 	 * Methods for the language system component.
 	 */
-	
+
 	public static void loadLanguage() {
 		var locale = config.language.language;
 		language = Language.getLanguage(Utils.getLanguageCode(locale));
 	}
-	
+
 	/*
 	 * Methods for the configuration system component.
 	 */
@@ -197,23 +240,26 @@ public final class Grasscutter {
 			config = new ConfigContainer();
 			Grasscutter.saveConfig(config);
 			return;
-		} 
+		}
 
 		// If the file already exists, we attempt to load it.
 		try (FileReader file = new FileReader(configFile)) {
 			config = gson.fromJson(file, ConfigContainer.class);
 		} catch (Exception exception) {
-			GameServer.doExit(0,"There was an error while trying to load the configuration from config.json. Please make sure that there are no syntax errors. If you want to start with a default configuration, delete your existing config.json.");
-		} 
+			GameServer.doExit(0,
+					"There was an error while trying to load the configuration from config.json. Please make sure that there are no syntax errors. If you want to start with a default configuration, delete your existing config.json.");
+		}
 	}
 
 	/**
 	 * Saves the provided server configuration.
+	 * 
 	 * @param config The configuration to save, or null for a new one.
 	 */
 	public static void saveConfig(@Nullable ConfigContainer config) {
-		if(config == null) config = new ConfigContainer();
-		
+		if (config == null)
+			config = new ConfigContainer();
+
 		try (FileWriter file = new FileWriter(configFile)) {
 			file.write(gson.toJson(config));
 		} catch (IOException ignored) {
@@ -226,7 +272,7 @@ public final class Grasscutter {
 	/*
 	 * Getters for the various server components.
 	 */
-	
+
 	public static ConfigContainer getConfig() {
 		return config;
 	}
@@ -236,11 +282,11 @@ public final class Grasscutter {
 	}
 
 	public static void setLanguage(Language language) {
-        Grasscutter.language = language;
+		Grasscutter.language = language;
 	}
 
 	public static Language getLanguage(String langCode) {
-        return Language.getLanguage(langCode);
+		return Language.getLanguage(langCode);
 	}
 
 	public static Logger getLogger() {
@@ -282,7 +328,7 @@ public final class Grasscutter {
 	public static PluginManager getPluginManager() {
 		return pluginManager;
 	}
-	
+
 	public static AuthenticationSystem getAuthenticationSystem() {
 		return authenticationSystem;
 	}
@@ -290,14 +336,14 @@ public final class Grasscutter {
 	public static int getCurrentDayOfWeek() {
 		return day;
 	}
-	
+
 	/*
 	 * Utility methods.
 	 */
-	
+
 	public static void updateDayOfWeek() {
 		Calendar calendar = Calendar.getInstance();
-		day = calendar.get(Calendar.DAY_OF_WEEK); 
+		day = calendar.get(Calendar.DAY_OF_WEEK);
 	}
 
 	public static void startConsole() {
@@ -319,7 +365,7 @@ public final class Grasscutter {
 					Grasscutter.getLogger().info("Press Ctrl-C again to shutdown.");
 					continue;
 				} else {
-					GameServer.doExit(1,"Exit by user...");
+					GameServer.doExit(1, "Exit by user...");
 				}
 			} catch (EndOfFileException e) {
 				Grasscutter.getLogger().info("EOF detected.");
@@ -340,6 +386,7 @@ public final class Grasscutter {
 
 	/**
 	 * Sets the authentication system for the server.
+	 * 
 	 * @param authenticationSystem The authentication system to use.
 	 */
 	public static void setAuthenticationSystem(AuthenticationSystem authenticationSystem) {
@@ -349,7 +396,7 @@ public final class Grasscutter {
 	/*
 	 * Enums for the configuration.
 	 */
-	
+
 	public enum ServerRunMode {
 		HYBRID, DISPATCH_ONLY, GAME_ONLY
 	}

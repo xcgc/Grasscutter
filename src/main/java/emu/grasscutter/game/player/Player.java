@@ -555,7 +555,7 @@ public class Player {
 	}
 
 	public MpSettingType getMpSetting() {
-		return MpSettingType.MP_SETTING_ENTER_AFTER_APPLY; // TEMP
+		return MpSettingType.MP_SETTING_TYPE_ENTER_AFTER_APPLY; // TEMP
 	}
 	
 	public Queue<AttackResult> getAttackResults() {
@@ -974,9 +974,9 @@ public class Player {
 			if (success) {
 
 				if (!drop.isShare()) // not shared drop
-					this.sendPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_PICK_ITEM));
+					this.sendPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
 				else
-					this.getScene().broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_PICK_ITEM));
+					this.getScene().broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
 			}
 		} else if (entity instanceof EntityGadget) {
 			EntityGadget gadget = (EntityGadget) entity;
@@ -986,7 +986,7 @@ public class Player {
 					scene.getChallenge().getStatueDrops(this);
 				}
 				
-				this.sendPacket(new PacketGadgetInteractRsp(gadget, InteractType.INTERACT_OPEN_STATUE));
+				this.sendPacket(new PacketGadgetInteractRsp(gadget, InteractType.INTERACT_TYPE_OPEN_STATUE));
 			}
 		} else {
 			// Delete directly
@@ -1173,7 +1173,10 @@ public class Player {
 		while (it.hasNext()) {
 			CoopRequest req = it.next();
 			if (req.isExpired()) {
-				req.getRequester().sendPacket(new PacketPlayerApplyEnterMpResultNotify(this, false, PlayerApplyEnterMpResultNotifyOuterClass.PlayerApplyEnterMpResultNotify.Reason.SYSTEM_JUDGE));
+				req.getRequester().sendPacket(new PacketPlayerApplyEnterMpResultNotify(
+						this,
+						false,
+						PlayerApplyEnterMpResultNotifyOuterClass.PlayerApplyEnterMpResultNotify.Reason.REASON_SYSTEM_JUDGE));
 				it.remove();
 			}
 		}

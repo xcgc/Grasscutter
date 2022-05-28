@@ -2,6 +2,7 @@ package emu.grasscutter.data.def;
 
 import java.util.List;
 
+import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
 import emu.grasscutter.data.GameResource;
 import emu.grasscutter.data.ResourceType;
@@ -234,7 +235,14 @@ public class AvatarData extends GameResource {
     			FightProperty prop = FightProperty.getPropByName(growCurve.getType());
     			switch (prop) {
     				case FIGHT_PROP_BASE_HP:
-    					this.hpGrowthCurve[level] = curveData.getCurveInfos().get(growCurve.getGrowCurve());
+                    try {
+                        this.hpGrowthCurve[level] = curveData.getCurveInfos().get(growCurve.getGrowCurve());
+                    } catch (Exception e) {
+                        this.hpGrowthCurve[level] = 999999;
+                        //getName
+                        Grasscutter.getLogger().error("Unable load hp: "+getName());
+                    }
+
     					break;
     				case FIGHT_PROP_BASE_ATTACK:
     					this.attackGrowthCurve[level] = curveData.getCurveInfos().get(growCurve.getGrowCurve());

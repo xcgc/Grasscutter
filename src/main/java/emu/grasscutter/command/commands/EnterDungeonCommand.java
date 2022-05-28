@@ -1,5 +1,6 @@
 package emu.grasscutter.command.commands;
 
+import emu.grasscutter.Grasscutter;
 import emu.grasscutter.command.Command;
 import emu.grasscutter.command.CommandHandler;
 import emu.grasscutter.game.player.Player;
@@ -29,7 +30,11 @@ public final class EnterDungeonCommand implements CommandHandler {
             CommandHandler.sendMessage(sender, translate(sender, "commands.enter_dungeon.changed", dungeonId));
 
             if (!result) {
-                CommandHandler.sendMessage(sender, translate(sender, "commands.enter_dungeon.not_found_error"));
+                if (Grasscutter.getConfig().server.game.gameOptions.DungeonMT) {
+                    CommandHandler.sendMessage(sender, "Sorry Dungeon has been temporarily turned off");
+                }else{
+                    CommandHandler.sendMessage(sender, translate(sender, "commands.enter_dungeon.not_found_error"));
+                }                 
             }
         } catch (NumberFormatException | IndexOutOfBoundsException | NullPointerException e) {
             CommandHandler.sendMessage(sender, translate(sender, "commands.enter_dungeon.usage"));

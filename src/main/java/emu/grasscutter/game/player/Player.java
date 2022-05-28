@@ -23,7 +23,7 @@ import dev.morphia.annotations.PostLoad;
 import dev.morphia.annotations.Transient;
 import emu.grasscutter.GameConstants;
 import emu.grasscutter.data.GameData;
-import emu.grasscutter.data.def.PlayerLevelData;
+import emu.grasscutter.data.excels.PlayerLevelData;
 import emu.grasscutter.database.DatabaseHelper;
 import emu.grasscutter.game.Account;
 import emu.grasscutter.game.CoopRequest;

@@ -220,10 +220,14 @@ public class Player {
 	@Transient
 	private final InvokeHandler<AbilityInvokeEntry> clientAbilityInitFinishHandler;
 
-	@Transient private MapMarksManager mapMarksManager;
-	@Transient private StaminaManager staminaManager;
-	@Transient private EnergyManager energyManager;
-	@Transient private DeforestationManager deforestationManager;
+	@Transient
+	private MapMarksManager mapMarksManager;
+	@Transient
+	private StaminaManager staminaManager;
+	@Transient
+	private EnergyManager energyManager;
+	@Transient
+	private DeforestationManager deforestationManager;
 
 	private long springLastUsed;
 	private HashMap<String, MapMark> mapMarks;
@@ -1206,7 +1210,9 @@ public class Player {
 		return deforestationManager;
 	}
 
-	public HashMap<String, MapMark> getMapMarks() { return mapMarks; }
+	public HashMap<String, MapMark> getMapMarks() {
+		return mapMarks;
+	}
 
 	public void setMapMarks(HashMap<String, MapMark> newMarks) {
 		mapMarks = newMarks;
@@ -1277,77 +1283,101 @@ public class Player {
 	// Called from tokenrsp
 	public void loadFromDatabase() {
 
+		var noplayermain = true;
+		int LastidAvatars = this.getMainCharacterId();
+
 		// Make sure these exist
 		if (this.getTeamManager() == null) {
 			// New player
 			this.teamManager = new TeamManager(this);
 		} else {
 
-			// Old player
-			int IndexNowAvatars = 0;
-			int IndexGoodAvatars = 0;
-			int LastidAvatars = this.getMainCharacterId();
-			List<Integer> dupcheck = new ArrayList<>();
-			List<Integer> tmpav = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars();
-			boolean soremoveit = false;
-			// check team
-			for (int i = tmpav.size() - 1; i >= 0; i--) {
+			// check if new player base team info?
+			if (this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size() > 0) {
 
-				Boolean noremove = true;
-				int avatarId = tmpav.get(i);
+				// Old player
+				int IndexNowAvatars = 0;
+				int IndexGoodAvatars = 0;
 
-				// if avatar null
-				AvatarData avatarData = GameData.getAvatarDataMap().get(avatarId);
-				if (avatarData == null) {
-					Grasscutter.getLogger().info("Remove null Avatar: " + avatarId);
-					tmpav.remove(i);
-					noremove = false;
+				List<Integer> dupcheck = new ArrayList<>();
+				List<Integer> tmpav = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars();
+				boolean soremoveit = false;
+
+				// check team
+				for (int i = tmpav.size() - 1; i >= 0; i--) {
+
+					Boolean noremove = true;
+					int avatarId = tmpav.get(i);
+
+					// if avatar null
+					AvatarData avatarData = GameData.getAvatarDataMap().get(avatarId);
+					if (avatarData == null) {
+						Grasscutter.getLogger().info("Remove null Avatar: " + avatarId);
+						tmpav.remove(i);
+						noremove = false;
+					}
+
+					// Delete Avatar Testing from Team
+					if (avatarId < 10000002 || avatarId >= 11000000) {
+						Grasscutter.getLogger().info("Remove testing Avatar: " + avatarId);
+						tmpav.remove(i);
+						noremove = false;
+					}
+
+					// Remove Duplicate Avatars
+					if (dupcheck.contains(avatarId)) {
+						Grasscutter.getLogger().info("Remove Duplicate Avatar: " + avatarId);
+						tmpav.remove(i);
+						noremove = false;
+					}
+
+					if (noremove) {
+						// Add Duplicate Check
+						dupcheck.add(avatarId);
+
+						LastidAvatars = avatarId;
+						IndexGoodAvatars = i;
+					} else {
+						soremoveit = true;
+					}
+
+					IndexNowAvatars = i;
 				}
 
-				// Delete Avatar Testing from Team
-				if (avatarId < 10000002 || avatarId >= 11000000) {
-					Grasscutter.getLogger().info("Remove testing Avatar: " + avatarId);
-					tmpav.remove(i);
-					noremove = false;
+				if (LastidAvatars == GameConstants.MAIN_CHARACTER_MALE) {
+					noplayermain = false;
+				}
+				if (LastidAvatars == GameConstants.MAIN_CHARACTER_FEMALE) {
+					noplayermain = false;
 				}
 
-				// Remove Duplicate Avatars
-				if (dupcheck.contains(avatarId)) {
-					Grasscutter.getLogger().info("Remove Duplicate Avatar: " + avatarId);
-					tmpav.remove(i);
-					noremove = false;
-				}
+				// doubel check after remove
+				if (this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size() == 0) {
 
-				if (noremove) {
-					// Add Duplicate Check
-					dupcheck.add(avatarId);
+					// Add Travele if No Avatar in Team and if last avatar 0
+					if (LastidAvatars == 0) {
+						LastidAvatars = GameConstants.MAIN_CHARACTER_FEMALE;
+						noplayermain = true;
+					}
 
-					LastidAvatars = avatarId;
-					IndexGoodAvatars = i;
-				} else {
-					soremoveit = true;
-				}
-
-				IndexNowAvatars = i;
-			}
-
-			if (this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size() == 0) {
-				// Add Travele if No Avatar in Team
-				Grasscutter.getLogger().info("No Avatar (getCurrentSinglePlayerTeamInfo) (add " + LastidAvatars
-						+ ")(ID: " + this.accountId + ")");
-				this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().add(LastidAvatars); // add main char
-																										// to team
-				this.getTeamManager().setCurrentCharacterIndex(0);
-				this.getTeamManager().saveAvatars(); // maybe need this to save datebase?
-			} else {
-				// Switch Index if have team
-				Grasscutter.getLogger().info("LastLast Index " + IndexNowAvatars + " (Good " + IndexGoodAvatars
-						+ " index) (" + LastidAvatars + ") (ID: " + this.accountId + ")");
-				if (soremoveit) {
-					Grasscutter.getLogger().info("UseLastID: " + LastidAvatars);
-					this.getTeamManager().setCurrentCharacterIndex(IndexGoodAvatars);
+					Grasscutter.getLogger().info("No Avatar (getCurrentSinglePlayerTeamInfo) (add " + LastidAvatars
+							+ ")(ID: " + this.accountId + ")");
+					this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().add(LastidAvatars); // add mainchar to team
+					this.getTeamManager().setCurrentCharacterIndex(0);
 					this.getTeamManager().saveAvatars(); // maybe need this to save datebase?
+				} else {
+					// Switch Index if have team
+					Grasscutter.getLogger().info("LastLast Index " + IndexNowAvatars + " (Good " +IndexGoodAvatars+ " index) (" + LastidAvatars + ") (ID: " + this.accountId + ")");
+					if (soremoveit) {
+						Grasscutter.getLogger().info("UseLastID: " + LastidAvatars);
+						this.getTeamManager().setCurrentCharacterIndex(IndexGoodAvatars);
+						this.getTeamManager().saveAvatars(); // maybe need this to save datebase?
+					}
 				}
+
+			} else {
+				Grasscutter.getLogger().info("User new join? (ID: " + this.accountId + ") ");
+				noplayermain = false;
 			}
 
 		}
@@ -1370,33 +1400,24 @@ public class Player {
 			this.getAvatars().loadFromDatabase();
 
 			// Check Main Character
-			int LastidAvatarsx = this.getMainCharacterId();
-			var noplayermain = true;
-			if (LastidAvatarsx == GameConstants.MAIN_CHARACTER_MALE) {
-				noplayermain = false;
-			}
-			if (LastidAvatarsx == GameConstants.MAIN_CHARACTER_FEMALE) {
-				noplayermain = false;
-			}
-
 			if (noplayermain) {
 				var tes = this.getAvatars().getAvatars().values();
-				Grasscutter.getLogger().info("Not Main char: " + LastidAvatarsx + " | Avatar Total now " + tes.size());
+				if (tes.size() != 0) {
+					Grasscutter.getLogger().info("Not Main char: " + LastidAvatars + " | Avatar Total now " + tes.size());
+					for (Avatar avatar : tes) {
 
-				for (Avatar avatar : tes) {
-					if (avatar != null) {
-						if (
-							avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE || 
-							avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {								
-							Grasscutter.getLogger().info("Set: " + avatar.getAvatarId());
-							this.setMainCharacterId(avatar.getAvatarId());
-							this.save();
+						if (avatar != null) {
+							if (avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE || avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {
+								Grasscutter.getLogger().info("Set: " + avatar.getAvatarId());
+								this.setMainCharacterId(avatar.getAvatarId());
+								this.save();
+							}
 						}
-					} else {
-						Grasscutter.getLogger().info("nullavtar: ");
-					}
-				}
 
+					}
+				}else{
+					Grasscutter.getLogger().info("No Avatar and no main char? (ID: " + this.accountId + ")  ");
+				}
 			}
 
 			this.getInventory().loadFromDatabase();
@@ -1507,9 +1528,10 @@ public class Player {
 		this.getFriendsList().save();
 
 		// Call quit event.
-		PlayerQuitEvent event = new PlayerQuitEvent(this); event.call();
+		PlayerQuitEvent event = new PlayerQuitEvent(this);
+		event.call();
 
-		//reset wood
+		// reset wood
 		getDeforestationManager().resetWood();
 	}
 

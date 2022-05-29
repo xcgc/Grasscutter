@@ -176,7 +176,7 @@ public class ConfigContainer {
 		public int CMD_Give = 10000000;
 		public int CMD_Drop = 100;
         public int CMD_DayLogin = 8;
-		public boolean CMD_NoGiveTes = true;
+		public boolean CMD_NoGiveTes = false;
         public boolean CMD_ListOnline = false;
 		public boolean DropMo = true;
 		public boolean DungeonMT = false;

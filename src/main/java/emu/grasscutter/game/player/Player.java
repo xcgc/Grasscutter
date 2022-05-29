@@ -45,6 +45,7 @@ import emu.grasscutter.game.inventory.Inventory;
 import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.mail.MailHandler;
 import emu.grasscutter.game.managers.SotSManager;
+import emu.grasscutter.game.managers.DeforestationManager.DeforestationManager;
 import emu.grasscutter.game.managers.EnergyManager.EnergyManager;
 import emu.grasscutter.game.managers.MapMarkManager.MapMark;
 import emu.grasscutter.game.managers.MapMarkManager.MapMarksManager;
@@ -65,7 +66,6 @@ import emu.grasscutter.net.proto.CombatInvokeEntryOuterClass.CombatInvokeEntry;
 import emu.grasscutter.net.proto.InteractTypeOuterClass.InteractType;
 import emu.grasscutter.net.proto.MpSettingTypeOuterClass.MpSettingType;
 import emu.grasscutter.net.proto.OnlinePlayerInfoOuterClass.OnlinePlayerInfo;
-import emu.grasscutter.net.proto.FallSettleInfoOuterClass;
 import emu.grasscutter.net.proto.PlayerApplyEnterMpResultNotifyOuterClass;
 import emu.grasscutter.net.proto.PlayerLocationInfoOuterClass.PlayerLocationInfo;
 import emu.grasscutter.net.proto.PlayerWorldLocationInfoOuterClass;
@@ -220,12 +220,10 @@ public class Player {
 	@Transient
 	private final InvokeHandler<AbilityInvokeEntry> clientAbilityInitFinishHandler;
 
-	@Transient
-	private MapMarksManager mapMarksManager;
-	@Transient
-	private StaminaManager staminaManager;
-	@Transient
-	private EnergyManager energyManager;
+	@Transient private MapMarksManager mapMarksManager;
+	@Transient private StaminaManager staminaManager;
+	@Transient private EnergyManager energyManager;
+	@Transient private DeforestationManager deforestationManager;
 
 	private long springLastUsed;
 	private HashMap<String, MapMark> mapMarks;
@@ -239,6 +237,8 @@ public class Player {
 		this.mailHandler = new MailHandler(this);
 		this.towerManager = new TowerManager(this);
 		this.abilityManager = new AbilityManager(this);
+		this.deforestationManager = new DeforestationManager(this);
+
 		this.setQuestManager(new QuestManager(this));
 		this.pos = new Position();
 		this.rotation = new Position();
@@ -307,6 +307,7 @@ public class Player {
 		this.staminaManager = new StaminaManager(this);
 		this.sotsManager = new SotSManager(this);
 		this.energyManager = new EnergyManager(this);
+		this.deforestationManager = new DeforestationManager(this);
 	}
 
 	public int getUid() {
@@ -1012,7 +1013,6 @@ public class Player {
 			// Add to inventory
 			boolean success = getInventory().addItem(item, ActionReason.SubfieldDrop);
 			if (success) {
-
 				if (!drop.isShare()) // not shared drop
 					this.sendPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_PICK_ITEM));
 				else
@@ -1202,9 +1202,11 @@ public class Player {
 		return abilityManager;
 	}
 
-	public HashMap<String, MapMark> getMapMarks() {
-		return mapMarks;
+	public DeforestationManager getDeforestationManager() {
+		return deforestationManager;
 	}
+
+	public HashMap<String, MapMark> getMapMarks() { return mapMarks; }
 
 	public void setMapMarks(HashMap<String, MapMark> newMarks) {
 		mapMarks = newMarks;
@@ -1505,10 +1507,10 @@ public class Player {
 		this.getFriendsList().save();
 
 		// Call quit event.
-		PlayerQuitEvent event = new PlayerQuitEvent(this);
-		event.call();
+		PlayerQuitEvent event = new PlayerQuitEvent(this); event.call();
 
-		// this.session.close();
+		//reset wood
+		getDeforestationManager().resetWood();
 	}
 
 	public enum SceneLoadState {

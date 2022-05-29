@@ -1285,7 +1285,7 @@ public class Player {
 
 		var noplayermain = true;
 		int LastidAvatars = this.getMainCharacterId();
-
+		int Mainchar = LastidAvatars;
 		// Make sure these exist
 		if (this.getTeamManager() == null) {
 			// New player
@@ -1344,10 +1344,11 @@ public class Player {
 					IndexNowAvatars = i;
 				}
 
-				if (LastidAvatars == GameConstants.MAIN_CHARACTER_MALE) {
+				// check main char
+				if (Mainchar == GameConstants.MAIN_CHARACTER_MALE) {
 					noplayermain = false;
 				}
-				if (LastidAvatars == GameConstants.MAIN_CHARACTER_FEMALE) {
+				if (Mainchar == GameConstants.MAIN_CHARACTER_FEMALE) {
 					noplayermain = false;
 				}
 
@@ -1358,16 +1359,18 @@ public class Player {
 					if (LastidAvatars == 0) {
 						LastidAvatars = GameConstants.MAIN_CHARACTER_FEMALE;
 						noplayermain = true;
+					}else{
+						// if all good at "check main char" skip trie?
 					}
 
-					Grasscutter.getLogger().info("No Avatar (getCurrentSinglePlayerTeamInfo) (add " + LastidAvatars
-							+ ")(ID: " + this.accountId + ")");
+					Grasscutter.getLogger().info("No Avatar (getCurrentSinglePlayerTeamInfo) (add " + LastidAvatars + ")(ID: " + this.accountId + ")");
 					this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().add(LastidAvatars); // add mainchar to team
 					this.getTeamManager().setCurrentCharacterIndex(0);
 					this.getTeamManager().saveAvatars(); // maybe need this to save datebase?
 				} else {
-					// Switch Index if have team
-					Grasscutter.getLogger().info("LastLast Index " + IndexNowAvatars + " (Good " +IndexGoodAvatars+ " index) (" + LastidAvatars + ") (ID: " + this.accountId + ")");
+
+					// Switch Index if have team (use "check main char")
+					Grasscutter.getLogger().info("LastLast Index " + IndexNowAvatars + " (Good " +IndexGoodAvatars+ " index) (IDAV:" + LastidAvatars + ") (IDMR:" + Mainchar + ") (ID: " + this.accountId + ")");
 					if (soremoveit) {
 						Grasscutter.getLogger().info("UseLastID: " + LastidAvatars);
 						this.getTeamManager().setCurrentCharacterIndex(IndexGoodAvatars);
@@ -1403,7 +1406,7 @@ public class Player {
 			if (noplayermain) {
 				var tes = this.getAvatars().getAvatars().values();
 				if (tes.size() != 0) {
-					Grasscutter.getLogger().info("Not Main char: " + LastidAvatars + " | Avatar Total now " + tes.size());
+					Grasscutter.getLogger().info("Not Main char: " + Mainchar + " | Avatar Total now " + tes.size());
 					for (Avatar avatar : tes) {
 
 						if (avatar != null) {

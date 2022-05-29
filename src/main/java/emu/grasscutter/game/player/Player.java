@@ -22,7 +22,9 @@ import dev.morphia.annotations.Indexed;
 import dev.morphia.annotations.PostLoad;
 import dev.morphia.annotations.Transient;
 import emu.grasscutter.GameConstants;
+import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
+import emu.grasscutter.data.excels.AvatarData;
 import emu.grasscutter.data.excels.PlayerLevelData;
 import emu.grasscutter.database.DatabaseHelper;
 import emu.grasscutter.game.Account;
@@ -43,6 +45,7 @@ import emu.grasscutter.game.inventory.Inventory;
 import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.mail.MailHandler;
 import emu.grasscutter.game.managers.SotSManager;
+import emu.grasscutter.game.managers.DeforestationManager.DeforestationManager;
 import emu.grasscutter.game.managers.EnergyManager.EnergyManager;
 import emu.grasscutter.game.managers.MapMarkManager.MapMark;
 import emu.grasscutter.game.managers.MapMarkManager.MapMarksManager;
@@ -116,10 +119,13 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 @Entity(value = "players", useDiscriminator = false)
 public class Player {
 
-	@Id private int id;
-	@Indexed(options = @IndexOptions(unique = true)) private String accountId;
+	@Id
+	private int id;
+	@Indexed(options = @IndexOptions(unique = true))
+	private String accountId;
 
-	@Transient private Account account;
+	@Transient
+	private Account account;
 	private String nickname;
 	private String signature;
 	private int headImage;
@@ -139,20 +145,33 @@ public class Player {
 	private Set<Integer> realmList;
 	private Integer currentRealmId;
 
-	@Transient private long nextGuid = 0;
-	@Transient private int peerId;
-	@Transient private World world;
-	@Transient private Scene scene;
-	@Transient private GameSession session;
-	@Transient private AvatarStorage avatars;
-	@Transient private Inventory inventory;
-	@Transient private FriendsList friendsList;
-	@Transient private MailHandler mailHandler;
-	@Transient private MessageHandler messageHandler;
-	@Transient private AbilityManager abilityManager;
-	@Transient private QuestManager questManager;
-	
-	@Transient private SotSManager sotsManager;
+	@Transient
+	private long nextGuid = 0;
+	@Transient
+	private int peerId;
+	@Transient
+	private World world;
+	@Transient
+	private Scene scene;
+	@Transient
+	private GameSession session;
+	@Transient
+	private AvatarStorage avatars;
+	@Transient
+	private Inventory inventory;
+	@Transient
+	private FriendsList friendsList;
+	@Transient
+	private MailHandler mailHandler;
+	@Transient
+	private MessageHandler messageHandler;
+	@Transient
+	private AbilityManager abilityManager;
+	@Transient
+	private QuestManager questManager;
+
+	@Transient
+	private SotSManager sotsManager;
 
 	private TeamManager teamManager;
 
@@ -179,34 +198,50 @@ public class Player {
 	private List<Integer> showAvatarList;
 	private boolean showAvatars;
 
-	@Transient private boolean paused;
-	@Transient private int enterSceneToken;
-	@Transient private SceneLoadState sceneState;
-	@Transient private boolean hasSentAvatarDataNotify;
-	@Transient private long nextSendPlayerLocTime = 0;
+	@Transient
+	private boolean paused;
+	@Transient
+	private int enterSceneToken;
+	@Transient
+	private SceneLoadState sceneState;
+	@Transient
+	private boolean hasSentAvatarDataNotify;
+	@Transient
+	private long nextSendPlayerLocTime = 0;
 
-	@Transient private final Int2ObjectMap<CoopRequest> coopRequests;
-	@Transient private final Queue<AttackResult> attackResults;
-	@Transient private final InvokeHandler<CombatInvokeEntry> combatInvokeHandler;
-	@Transient private final InvokeHandler<AbilityInvokeEntry> abilityInvokeHandler;
-	@Transient private final InvokeHandler<AbilityInvokeEntry> clientAbilityInitFinishHandler;
+	@Transient
+	private final Int2ObjectMap<CoopRequest> coopRequests;
+	@Transient
+	private final Queue<AttackResult> attackResults;
+	@Transient
+	private final InvokeHandler<CombatInvokeEntry> combatInvokeHandler;
+	@Transient
+	private final InvokeHandler<AbilityInvokeEntry> abilityInvokeHandler;
+	@Transient
+	private final InvokeHandler<AbilityInvokeEntry> clientAbilityInitFinishHandler;
 
-	@Transient private MapMarksManager mapMarksManager;
-	@Transient private StaminaManager staminaManager;
-	@Transient private EnergyManager energyManager;
+	@Transient
+	private MapMarksManager mapMarksManager;
+	@Transient
+	private StaminaManager staminaManager;
+	@Transient
+	private EnergyManager energyManager;
+	@Transient
+	private DeforestationManager deforestationManager;
 
 	private long springLastUsed;
 	private HashMap<String, MapMark> mapMarks;
 
-
 	@Deprecated
-	@SuppressWarnings({"rawtypes", "unchecked"}) // Morphia only!
+	@SuppressWarnings({ "rawtypes", "unchecked" }) // Morphia only!
 	public Player() {
 		this.inventory = new Inventory(this);
 		this.avatars = new AvatarStorage(this);
 		this.friendsList = new FriendsList(this);
 		this.mailHandler = new MailHandler(this);
 		this.abilityManager = new AbilityManager(this);
+		this.deforestationManager = new DeforestationManager(this);
+
 		this.setQuestManager(new QuestManager(this));
 		this.pos = new Position();
 		this.rotation = new Position();
@@ -275,6 +310,7 @@ public class Player {
 		this.staminaManager = new StaminaManager(this);
 		this.sotsManager = new SotSManager(this);
 		this.energyManager = new EnergyManager(this);
+		this.deforestationManager = new DeforestationManager(this);
 	}
 
 	public int getUid() {
@@ -413,7 +449,7 @@ public class Player {
 	public int getWorldLevel() {
 		return this.getProperty(PlayerProperty.PROP_PLAYER_WORLD_LEVEL);
 	}
-	
+
 	public void setWorldLevel(int level) {
 		this.setProperty(PlayerProperty.PROP_PLAYER_WORLD_LEVEL, level);
 		this.sendPacket(new PacketPlayerPropNotify(this, PlayerProperty.PROP_PLAYER_WORLD_LEVEL));
@@ -436,7 +472,7 @@ public class Player {
 		this.setProperty(PlayerProperty.PROP_PLAYER_SCOIN, mora);
 		this.sendPacket(new PacketPlayerPropNotify(this, PlayerProperty.PROP_PLAYER_SCOIN));
 	}
-	
+
 	public int getCrystals() {
 		return this.getProperty(PlayerProperty.PROP_PLAYER_MCOIN);
 	}
@@ -528,7 +564,8 @@ public class Player {
 	}
 
 	// TODO: Based on the proto, property value could be int or float.
-	//  Although there's no float value at this moment, our code should be prepared for float values.
+	// Although there's no float value at this moment, our code should be prepared
+	// for float values.
 	public Map<Integer, Integer> getProperties() {
 		return properties;
 	}
@@ -556,7 +593,7 @@ public class Player {
 	public MpSettingType getMpSetting() {
 		return MpSettingType.MP_SETTING_TYPE_ENTER_AFTER_APPLY; // TEMP
 	}
-	
+
 	public Queue<AttackResult> getAttackResults() {
 		return this.attackResults;
 	}
@@ -743,7 +780,7 @@ public class Player {
 		remainCalendar.add(Calendar.DATE, moonCardDuration);
 		Date theLastDay = remainCalendar.getTime();
 		Date now = DateHelper.onlyYearMonthDay(new Date());
-		return (int) ((theLastDay.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)); // By copilot 
+		return (int) ((theLastDay.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)); // By copilot
 	}
 
 	public void rechargeMoonCard() {
@@ -789,7 +826,7 @@ public class Player {
 		return expeditionInfo;
 	}
 
-	public void addExpeditionInfo(long avaterGuid, int expId, int hourTime, int startTime){
+	public void addExpeditionInfo(long avaterGuid, int expId, int hourTime, int startTime) {
 		ExpeditionInfo exp = new ExpeditionInfo();
 		exp.setExpId(expId);
 		exp.setHourTime(hourTime);
@@ -798,11 +835,11 @@ public class Player {
 		expeditionInfo.put(avaterGuid, exp);
 	}
 
-	public void removeExpeditionInfo(long avaterGuid){
+	public void removeExpeditionInfo(long avaterGuid) {
 		expeditionInfo.remove(avaterGuid);
 	}
 
-	public ExpeditionInfo getExpeditionInfo(long avaterGuid){
+	public ExpeditionInfo getExpeditionInfo(long avaterGuid) {
 		return expeditionInfo.get(avaterGuid);
 	}
 
@@ -833,14 +870,17 @@ public class Player {
 		}
 		this.save();
 	}
+
 	public boolean getStamina() {
 		// Get Stamina
 		return stamina;
 	}
+
 	public void setStamina(boolean stamina) {
 		// Set Stamina
 		this.stamina = stamina;
 	}
+
 	public boolean inGodmode() {
 		return godmode;
 	}
@@ -869,7 +909,8 @@ public class Player {
 				// Recalc stats
 				avatar.recalcStats();
 				// Packet, show notice on left if the avatar will be added to the team
-				sendPacket(new PacketAvatarAddNotify(avatar, addToCurrentTeam && this.getTeamManager().canAddAvatarToCurrentTeam()));
+				sendPacket(new PacketAvatarAddNotify(avatar,
+						addToCurrentTeam && this.getTeamManager().canAddAvatarToCurrentTeam()));
 				if (addToCurrentTeam) {
 					// If space in team, add
 					this.getTeamManager().addAvatarToCurrentTeam(avatar);
@@ -929,7 +970,9 @@ public class Player {
 
 	// ---------------------MAIL------------------------
 
-	public List<Mail> getAllMail() { return this.getMailHandler().getMail(); }
+	public List<Mail> getAllMail() {
+		return this.getMailHandler().getMail();
+	}
 
 	public void sendMail(Mail message) {
 		this.getMailHandler().sendMail(message);
@@ -939,8 +982,10 @@ public class Player {
 		return this.getMailHandler().deleteMail(mailId);
 	}
 
-	public Mail getMail(int index) { return this.getMailHandler().getMailById(index); }
-	
+	public Mail getMail(int index) {
+		return this.getMailHandler().getMailById(index);
+	}
+
 	public int getMailId(Mail message) {
 		return this.getMailHandler().getMailIndex(message);
 	}
@@ -948,7 +993,7 @@ public class Player {
 	public boolean replaceMailByIndex(int index, Mail message) {
 		return this.getMailHandler().replaceMailByIndex(index, message);
 	}
-	
+
 	public void interactWith(int gadgetEntityId) {
 		GameEntity entity = getScene().getEntityById(gadgetEntityId);
 
@@ -962,7 +1007,7 @@ public class Player {
 			EntityItem drop = (EntityItem) entity;
 			if (!drop.isShare()) // check drop owner to avoid someone picked up item in others' world
 			{
-				int dropOwner = (int)(drop.getGuid() >> 32);
+				int dropOwner = (int) (drop.getGuid() >> 32);
 				if (dropOwner != getUid())
 					return;
 			}
@@ -971,7 +1016,6 @@ public class Player {
 			// Add to inventory
 			boolean success = getInventory().addItem(item, ActionReason.SubfieldDrop);
 			if (success) {
-
 				if (!drop.isShare()) // not shared drop
 					this.sendPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
 				else
@@ -979,7 +1023,7 @@ public class Player {
 			}
 		} else if (entity instanceof EntityGadget) {
 			EntityGadget gadget = (EntityGadget) entity;
-			
+
 			if (gadget.getGadgetData().getType() == EntityType.RewardStatue) {
 				if (scene.getChallenge() != null) {
 					scene.getChallenge().getStatueDrops(this);
@@ -1039,7 +1083,9 @@ public class Player {
 		return this.birthday.getDay() > 0;
 	}
 
-	public PlayerCodex getCodex(){ return this.codex; }
+	public PlayerCodex getCodex() {
+		return this.codex;
+	}
 
 	public Set<Integer> getRewardedLevels() {
 		return rewardedLevels;
@@ -1060,8 +1106,7 @@ public class Player {
 									.setAvatarId(avatarId)
 									.setLevel(getAvatars().getAvatarById(avatarId).getLevel())
 									.setCostumeId(getAvatars().getAvatarById(avatarId).getCostume())
-									.build()
-					);
+									.build());
 				}
 			}
 		} else {
@@ -1076,8 +1121,7 @@ public class Player {
 									.setAvatarId(avatarId)
 									.setLevel(avatars.getAvatarById(avatarId).getLevel())
 									.setCostumeId(avatars.getAvatarById(avatarId).getCostume())
-									.build()
-					);
+									.build());
 				}
 			}
 		}
@@ -1125,7 +1169,7 @@ public class Player {
 		}
 		return showAvatarInfoList;
 	}
-	
+
 	public PlayerWorldLocationInfoOuterClass.PlayerWorldLocationInfo getWorldPlayerLocationInfo() {
 		return PlayerWorldLocationInfoOuterClass.PlayerWorldLocationInfo.newBuilder()
 				.setSceneId(this.getSceneId())
@@ -1145,9 +1189,13 @@ public class Player {
 		return mapMarksManager;
 	}
 
-	public StaminaManager getStaminaManager() { return staminaManager; }
+	public StaminaManager getStaminaManager() {
+		return staminaManager;
+	}
 
-	public SotSManager getSotSManager() { return sotsManager; }
+	public SotSManager getSotSManager() {
+		return sotsManager;
+	}
 
 	public EnergyManager getEnergyManager() {
 		return this.energyManager;
@@ -1157,9 +1205,17 @@ public class Player {
 		return abilityManager;
 	}
 
-	public HashMap<String, MapMark> getMapMarks() { return mapMarks; }
+	public DeforestationManager getDeforestationManager() {
+		return deforestationManager;
+	}
 
-	public void setMapMarks(HashMap<String, MapMark> newMarks) { mapMarks = newMarks; }
+	public HashMap<String, MapMark> getMapMarks() {
+		return mapMarks;
+	}
+
+	public void setMapMarks(HashMap<String, MapMark> newMarks) {
+		mapMarks = newMarks;
+	}
 
 	public synchronized void onTick() {
 		// Check ping
@@ -1172,9 +1228,7 @@ public class Player {
 		while (it.hasNext()) {
 			CoopRequest req = it.next();
 			if (req.isExpired()) {
-				req.getRequester().sendPacket(new PacketPlayerApplyEnterMpResultNotify(
-						this,
-						false,
+				req.getRequester().sendPacket(new PacketPlayerApplyEnterMpResultNotify(this, false,
 						PlayerApplyEnterMpResultNotifyOuterClass.PlayerApplyEnterMpResultNotify.Reason.REASON_SYSTEM_JUDGE));
 				it.remove();
 			}
@@ -1197,21 +1251,18 @@ public class Player {
 		var needNotify = false;
 		for (Long key : expeditionInfo.keySet()) {
 			ExpeditionInfo e = expeditionInfo.get(key);
-			if(e.getState() == 1){
-				if(timeNow - e.getStartTime() >= e.getHourTime() * 60 * 60){
+			if (e.getState() == 1) {
+				if (timeNow - e.getStartTime() >= e.getHourTime() * 60 * 60) {
 					e.setState(2);
 					needNotify = true;
 				}
 			}
 		}
-		if(needNotify){
+		if (needNotify) {
 			this.save();
 			this.sendPacket(new PacketAvatarExpeditionDataNotify(this));
 		}
 	}
-
-
-
 
 	public void resetSendPlayerLocTime() {
 		this.nextSendPlayerLocTime = System.currentTimeMillis() + 5000;
@@ -1227,13 +1278,110 @@ public class Player {
 	public void save() {
 		DatabaseHelper.savePlayer(this);
 	}
-	
+
 	// Called from tokenrsp
 	public void loadFromDatabase() {
-		
+
+		var noplayermain = true;
+		int LastidAvatars = this.getMainCharacterId();
+		int Mainchar = LastidAvatars;
 		// Make sure these exist
 		if (this.getTeamManager() == null) {
+			// New player
 			this.teamManager = new TeamManager(this);
+		} else {
+
+			// check if new player base team info?
+			if (this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size() > 0) {
+
+				// Old player
+				int IndexNowAvatars = 0;
+				int IndexGoodAvatars = 0;
+
+				List<Integer> dupcheck = new ArrayList<>();
+				List<Integer> tmpav = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars();
+				boolean soremoveit = false;
+
+				// check team
+				for (int i = tmpav.size() - 1; i >= 0; i--) {
+
+					Boolean noremove = true;
+					int avatarId = tmpav.get(i);
+
+					// if avatar null
+					AvatarData avatarData = GameData.getAvatarDataMap().get(avatarId);
+					if (avatarData == null) {
+						Grasscutter.getLogger().info("Remove null Avatar: " + avatarId);
+						tmpav.remove(i);
+						noremove = false;
+					}
+
+					// Delete Avatar Testing from Team
+					if (avatarId < 10000002 || avatarId >= 11000000) {
+						Grasscutter.getLogger().info("Remove testing Avatar: " + avatarId);
+						tmpav.remove(i);
+						noremove = false;
+					}
+
+					// Remove Duplicate Avatars
+					if (dupcheck.contains(avatarId)) {
+						Grasscutter.getLogger().info("Remove Duplicate Avatar: " + avatarId);
+						tmpav.remove(i);
+						noremove = false;
+					}
+
+					if (noremove) {
+						// Add Duplicate Check
+						dupcheck.add(avatarId);
+
+						LastidAvatars = avatarId;
+						IndexGoodAvatars = i;
+					} else {
+						soremoveit = true;
+					}
+
+					IndexNowAvatars = i;
+				}
+
+				// check main char
+				if (Mainchar == GameConstants.MAIN_CHARACTER_MALE) {
+					noplayermain = false;
+				}
+				if (Mainchar == GameConstants.MAIN_CHARACTER_FEMALE) {
+					noplayermain = false;
+				}
+
+				// doubel check after remove
+				if (this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().size() == 0) {
+
+					// Add Travele if No Avatar in Team and if last avatar 0
+					if (LastidAvatars == 0) {
+						LastidAvatars = GameConstants.MAIN_CHARACTER_FEMALE;
+						noplayermain = true;
+					}else{
+						// if all good at "check main char" skip trie?
+					}
+
+					Grasscutter.getLogger().info("No Avatar (getCurrentSinglePlayerTeamInfo) (add " + LastidAvatars + ")(ID: " + this.accountId + ")");
+					this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars().add(LastidAvatars); // add mainchar to team
+					this.getTeamManager().setCurrentCharacterIndex(0);
+					this.getTeamManager().saveAvatars(); // maybe need this to save datebase?
+				} else {
+
+					// Switch Index if have team (use "check main char")
+					Grasscutter.getLogger().info("LastLast Index " + IndexNowAvatars + " (Good " +IndexGoodAvatars+ " index) (IDAV:" + LastidAvatars + ") (IDMR:" + Mainchar + ") (ID: " + this.accountId + ")");
+					if (soremoveit) {
+						Grasscutter.getLogger().info("UseLastID: " + LastidAvatars);
+						this.getTeamManager().setCurrentCharacterIndex(IndexGoodAvatars);
+						this.getTeamManager().saveAvatars(); // maybe need this to save datebase?
+					}
+				}
+
+			} else {
+				Grasscutter.getLogger().info("User new join? (ID: " + this.accountId + ") ");
+				noplayermain = false;
+			}
+
 		}
 		if (this.getTowerManager() == null) {
 			this.towerManager = new TowerManager(this);
@@ -1247,21 +1395,46 @@ public class Player {
 		}
 
 		// Check if player object exists in server
-		// TODO - optimize
 		Player exists = this.getServer().getPlayerByUid(getUid());
 		if (exists != null) {
 			exists.getSession().close();
 		}
 
 		// Load from db
-		this.getAvatars().loadFromDatabase();
-		this.getInventory().loadFromDatabase();
-		this.getAvatars().postLoad();
+		try {
+			this.getAvatars().loadFromDatabase();
 
-		this.getFriendsList().loadFromDatabase();
-		this.getMailHandler().loadFromDatabase();
-		this.getQuestManager().loadFromDatabase();
-		
+			// Check Main Character
+			if (noplayermain) {
+				var tes = this.getAvatars().getAvatars().values();
+				if (tes.size() != 0) {
+					Grasscutter.getLogger().info("Not Main char: " + Mainchar + " | Avatar Total now " + tes.size());
+					for (Avatar avatar : tes) {
+
+						if (avatar != null) {
+							if (avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE || avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {
+								Grasscutter.getLogger().info("Set: " + avatar.getAvatarId());
+								this.setMainCharacterId(avatar.getAvatarId());
+								this.save();
+							}
+						}
+
+					}
+				}else{
+					Grasscutter.getLogger().info("No Avatar and no main char? (ID: " + this.accountId + ")  ");
+				}
+			}
+
+			this.getInventory().loadFromDatabase();
+			this.getAvatars().postLoad();
+			this.getFriendsList().loadFromDatabase();
+			this.getMailHandler().loadFromDatabase();
+			this.getQuestManager().loadFromDatabase();
+		} catch (Exception e) {
+			this.getSession().close();
+			Grasscutter.getLogger().error("Error: loadFromDatabase", e);
+		}
+
 		// Add to gameserver (Always handle last)
 		if (getSession().isActive()) {
 			getServer().registerPlayer(this);
@@ -1270,21 +1443,22 @@ public class Player {
 	}
 
 	public void onLogin() {
-		// Quest - Commented out because a problem is caused if you log out while this quest is active
+		// Quest - Commented out because a problem is caused if you log out while this
+		// quest is active
 		/*
-		if (getQuestManager().getMainQuestById(351) == null) {
-			GameQuest quest = getQuestManager().addQuest(35104);
-			if (quest != null) {
-				quest.finish();
-			}
+		 * if (getQuestManager().getMainQuestById(351) == null) {
+		 * GameQuest quest = getQuestManager().addQuest(35104);
+		 * if (quest != null) {
+		 * quest.finish();
+		 * }
+		 * 
+		 * getQuestManager().addQuest(35101);
+		 * 
+		 * this.setSceneId(3);
+		 * this.getPos().set(GameConstants.START_POSITION);
+		 * }
+		 */
 
-			getQuestManager().addQuest(35101);
-			
-			this.setSceneId(3);
-			this.getPos().set(GameConstants.START_POSITION);
-		}
-		*/
-		
 		// Create world
 		World world = new World(this);
 		world.addPlayer(this);
@@ -1294,33 +1468,40 @@ public class Player {
 		this.setProperty(PlayerProperty.PROP_IS_MP_MODE_AVAILABLE, 1);
 
 		// Packets
-		session.send(new PacketPlayerDataNotify(this)); // Player data
-		session.send(new PacketStoreWeightLimitNotify());
-		session.send(new PacketPlayerStoreNotify(this));
-		session.send(new PacketAvatarDataNotify(this));
-		session.send(new PacketFinishedParentQuestNotify(this));
-		session.send(new PacketQuestListNotify(this));
-		session.send(new PacketCodexDataFullNotify(this));
-		session.send(new PacketAllWidgetDataNotify(this));
-		session.send(new PacketWidgetGadgetAllDataNotify());
-		session.send(new PacketPlayerHomeCompInfoNotify(this));
-		session.send(new PacketHomeComfortInfoNotify(this));
+		try {
+			session.send(new PacketPlayerDataNotify(this)); // Player data
+			session.send(new PacketStoreWeightLimitNotify());
+			session.send(new PacketPlayerStoreNotify(this));
+			session.send(new PacketAvatarDataNotify(this));
+			session.send(new PacketFinishedParentQuestNotify(this));
+			session.send(new PacketQuestListNotify(this));
+			session.send(new PacketCodexDataFullNotify(this));
+			session.send(new PacketAllWidgetDataNotify(this));
+			session.send(new PacketWidgetGadgetAllDataNotify());
+			session.send(new PacketPlayerHomeCompInfoNotify(this));
+			session.send(new PacketHomeComfortInfoNotify(this));
 
-		getTodayMoonCard(); // The timer works at 0:0, some users log in after that, use this method to check if they have received a reward today or not. If not, send the reward.
+			getTodayMoonCard(); // The timer works at 0:0, some users log in after that, use this method to
+								// check if they have received a reward today or not. If not, send the reward.
 
-		session.send(new PacketPlayerEnterSceneNotify(this)); // Enter game world
-		session.send(new PacketPlayerLevelRewardUpdateNotify(rewardedLevels));
-		session.send(new PacketOpenStateUpdateNotify());
+			session.send(new PacketPlayerEnterSceneNotify(this)); // Enter game world
+			session.send(new PacketPlayerLevelRewardUpdateNotify(rewardedLevels));
+			session.send(new PacketOpenStateUpdateNotify());
+		} catch (Exception e) {
+			this.getSession().close();
+			Grasscutter.getLogger().error("Error: Packets", e);
+		}
 
 		// First notify packets sent
 		this.setHasSentAvatarDataNotify(true);
-		
+
 		// Set session state
 		session.setState(SessionState.ACTIVE);
 
 		// Call join event.
-		PlayerJoinEvent event = new PlayerJoinEvent(this); event.call();
-		if(event.isCanceled()) // If event is not cancelled, continue.
+		PlayerJoinEvent event = new PlayerJoinEvent(this);
+		event.call();
+		if (event.isCanceled()) // If event is not cancelled, continue.
 			session.close();
 	}
 
@@ -1329,9 +1510,12 @@ public class Player {
 		getStaminaManager().stopSustainedStaminaHandler();
 
 		// force to leave the dungeon
-		if (getScene().getSceneType() == SceneType.SCENE_DUNGEON) {
-			this.getServer().getDungeonManager().exitDungeon(this);
+		if (getScene() != null) {
+			if (getScene().getSceneType() == SceneType.SCENE_DUNGEON) {
+				this.getServer().getDungeonManager().exitDungeon(this);
+			}
 		}
+
 		// Leave world
 		if (this.getWorld() != null) {
 			this.getWorld().removePlayer(this);
@@ -1347,9 +1531,13 @@ public class Player {
 		this.save();
 		this.getTeamManager().saveAvatars();
 		this.getFriendsList().save();
-		
+
 		// Call quit event.
-		PlayerQuitEvent event = new PlayerQuitEvent(this); event.call();
+		PlayerQuitEvent event = new PlayerQuitEvent(this);
+		event.call();
+
+		// reset wood
+		getDeforestationManager().resetWood();
 	}
 
 	public enum SceneLoadState {
@@ -1376,7 +1564,9 @@ public class Player {
 
 	private boolean setPropertyWithSanityCheck(PlayerProperty prop, int value) {
 		if (prop == PlayerProperty.PROP_EXP) { // 1001
-			if (!(value >= 0)) { return false; }
+			if (!(value >= 0)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_BREAK_LEVEL) { // 1002
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_SATIATION_VAL) { // 1003
@@ -1384,56 +1574,93 @@ public class Player {
 		} else if (prop == PlayerProperty.PROP_SATIATION_PENALTY_TIME) { // 1004
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_LEVEL) { // 4001
-			if (!(value >= 0 && value <= 90)) { return false; }
+			if (!(value >= 0 && value <= 90)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_LAST_CHANGE_AVATAR_TIME) { // 10001
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_MAX_SPRING_VOLUME) { // 10002
-			if (!(value >= 0 && value <= SotSManager.GlobalMaximumSpringVolume)) { return false; }
+			if (!(value >= 0 && value <= SotSManager.GlobalMaximumSpringVolume)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_CUR_SPRING_VOLUME) { // 10003
 			int playerMaximumSpringVolume = getProperty(PlayerProperty.PROP_MAX_SPRING_VOLUME);
-			if (!(value >= 0 && value <= playerMaximumSpringVolume)) { return false; }
+			if (!(value >= 0 && value <= playerMaximumSpringVolume)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_IS_SPRING_AUTO_USE) { // 10004
-			if (!(value >= 0 && value <= 1)) { return false; }
+			if (!(value >= 0 && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_SPRING_AUTO_USE_PERCENT) { // 10005
-			if (!(value >= 0 && value <= 100)) { return false; }
+			if (!(value >= 0 && value <= 100)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_IS_FLYABLE) { // 10006
-			if (!(0 <= value && value <= 1)) { return false; }
+			if (!(0 <= value && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_IS_WEATHER_LOCKED) { // 10007
-			if (!(0 <= value && value <= 1)) { return false; }
+			if (!(0 <= value && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_IS_GAME_TIME_LOCKED) { // 10008
-			if (!(0 <= value && value <= 1)) { return false; }
+			if (!(0 <= value && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_IS_TRANSFERABLE) { // 10009
-			if (!(0 <= value && value <= 1)) { return false; }
+			if (!(0 <= value && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_MAX_STAMINA) { // 10010
-			if (!(value >= 0 && value <= StaminaManager.GlobalCharacterMaximumStamina)) { return false; }
+			if (!(value >= 0 && value <= StaminaManager.GlobalCharacterMaximumStamina)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_CUR_PERSIST_STAMINA) { // 10011
 			int playerMaximumStamina = getProperty(PlayerProperty.PROP_MAX_STAMINA);
-			if (!(value >= 0 && value <= playerMaximumStamina)) { return false; }
+			if (!(value >= 0 && value <= playerMaximumStamina)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_CUR_TEMPORARY_STAMINA) { // 10012
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_PLAYER_LEVEL) { // 10013
-			if (!(0 < value && value <= 90)) { return false; }
+			if (!(0 < value && value <= 90)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_EXP) { // 10014
-			if (!(0 <= value)) { return false; }
+			if (!(0 <= value)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_HCOIN) { // 10015
 			// see PlayerProperty.PROP_PLAYER_HCOIN comments
 		} else if (prop == PlayerProperty.PROP_PLAYER_SCOIN) { // 10016
 			// See 10015
 		} else if (prop == PlayerProperty.PROP_PLAYER_MP_SETTING_TYPE) { // 10017
-			if (!(0 <= value && value <= 2)) { return false; }
+			if (!(0 <= value && value <= 2)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_IS_MP_MODE_AVAILABLE) { // 10018
-			if (!(0 <= value && value <= 1)) { return false; }
+			if (!(0 <= value && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_WORLD_LEVEL) { // 10019
-			if (!(0 <= value && value <= 8)) { return false; }
+			if (!(0 <= value && value <= 8)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_RESIN) { // 10020
-			// Do not set 160 as a cap, because player can have more than 160 when they use fragile resin.
-			if (!(0 <= value)) { return false; }
+			// Do not set 160 as a cap, because player can have more than 160 when they use
+			// fragile resin.
+			if (!(0 <= value)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_WAIT_SUB_HCOIN) { // 10022
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_PLAYER_WAIT_SUB_SCOIN) { // 10023
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_IS_ONLY_MP_WITH_PS_PLAYER) { // 10024
-			if (!(0 <= value && value <= 1)) { return false; }
+			if (!(0 <= value && value <= 1)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_MCOIN) { // 10025
 			// see 10015
 		} else if (prop == PlayerProperty.PROP_PLAYER_WAIT_SUB_MCOIN) { // 10026
@@ -1459,7 +1686,9 @@ public class Player {
 		} else if (prop == PlayerProperty.PROP_PLAYER_LEGENDARY_DAILY_TASK_NUM) { // 10041
 			// TODO: implement sanity check
 		} else if (prop == PlayerProperty.PROP_PLAYER_HOME_COIN) { // 10042
-			if (!(0 <= value)) { return false; }
+			if (!(0 <= value)) {
+				return false;
+			}
 		} else if (prop == PlayerProperty.PROP_PLAYER_WAIT_SUB_HOME_COIN) { // 10043
 			// TODO: implement sanity check
 		}

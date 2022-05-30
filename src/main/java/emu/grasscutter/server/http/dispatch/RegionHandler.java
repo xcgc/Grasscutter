@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.protobuf.ByteString;
 
+import emu.grasscutter.GameConstants;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.Grasscutter.ServerRunMode;
 import emu.grasscutter.net.proto.QueryCurrRegionHttpRspOuterClass.QueryCurrRegionHttpRsp;
@@ -113,12 +114,11 @@ public final class RegionHandler implements Router {
     /**
      * @route /query_region_list
      */
-    private static void queryRegionList(Request request, Response response) {
+    private static void queryRegionList(Request request, Response response) {        
         // Invoke event.
         QueryAllRegionsEvent event = new QueryAllRegionsEvent(regionListResponse); event.call();
         // Respond with event result.
-        response.send(event.getRegionList());
-        
+        response.send(event.getRegionList());        
         // Log to console.
         Grasscutter.getLogger().info(String.format("[Dispatch] Client %s request: query_region_list", request.ip()));
     }
@@ -129,6 +129,16 @@ public final class RegionHandler implements Router {
     private static void queryCurrentRegion(Request request, Response response) {
         // Get region to query.
         String regionName = request.params("region");
+
+        // check update
+        String versionName = request.query("version");
+        if(!versionName.contains(GameConstants.VERSION) ) {
+            var updatedQuery = QueryCurrRegionHttpRsp.newBuilder()
+            .setMsg("Current version is "+GameConstants.VERSION+"\nPlease Download Latest Client!!!\n~ Info game.yuuki.me")
+            .build();     
+            response.send(Utils.base64Encode(updatedQuery.toByteString().toByteArray()));
+            return;            
+        }
         
         // Get region data.
         String regionData = "CAESGE5vdCBGb3VuZCB2ZXJzaW9uIGNvbmZpZw==";

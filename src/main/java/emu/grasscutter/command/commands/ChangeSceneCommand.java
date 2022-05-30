@@ -1,5 +1,6 @@
 package emu.grasscutter.command.commands;
 
+import emu.grasscutter.Grasscutter;
 import emu.grasscutter.command.Command;
 import emu.grasscutter.command.CommandHandler;
 import emu.grasscutter.game.player.Player;
@@ -8,7 +9,7 @@ import java.util.List;
 
 import static emu.grasscutter.utils.Language.translate;
 
-@Command(label = "changescene", usage = "changescene <scene id>", aliases = {"scene"}, permission = "player.changescene", permissionTargeted = "player.changescene.others", description = "commands.changescene.description")
+@Command(label = "changescene", usage = "changescene <sceneId>", aliases = {"scene"}, permission = "player.changescene", permissionTargeted = "player.changescene.others", description = "commands.changescene.description")
 public final class ChangeSceneCommand implements CommandHandler {
 
     @Override
@@ -27,7 +28,11 @@ public final class ChangeSceneCommand implements CommandHandler {
             
             boolean result = targetPlayer.getWorld().transferPlayerToScene(targetPlayer, sceneId, targetPlayer.getPos());
             if (!result) {
-                CommandHandler.sendMessage(sender, translate(sender, "commands.changescene.exists_error"));
+                if (Grasscutter.getConfig().server.game.gameOptions.DungeonMT) {
+                    CommandHandler.sendMessage(sender, "Sorry Dungeon has been temporarily turned off");
+                }else{
+                    CommandHandler.sendMessage(sender, translate(sender, "commands.changescene.exists_error"));
+                }      
                 return;
             }
 

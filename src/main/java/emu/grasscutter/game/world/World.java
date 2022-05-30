@@ -11,6 +11,7 @@ import emu.grasscutter.game.player.Player.SceneLoadState;
 import emu.grasscutter.game.props.EnterReason;
 import emu.grasscutter.game.props.EntityIdType;
 import emu.grasscutter.game.props.SceneType;
+import emu.grasscutter.Grasscutter;
 import emu.grasscutter.data.GameData;
 import emu.grasscutter.data.excels.DungeonData;
 import emu.grasscutter.data.excels.SceneData;
@@ -217,6 +218,12 @@ public class World implements Iterable<Player> {
 	public boolean transferPlayerToScene(Player player, int sceneId, DungeonData dungeonData, Position pos) {
 		if (GameData.getSceneDataMap().get(sceneId) == null) {
 			return false;
+		}
+
+		if (GameData.getSceneDataMap().get(sceneId).getSceneType() == SceneType.SCENE_DUNGEON) {
+			if (Grasscutter.getConfig().server.game.gameOptions.DungeonMT) {
+		        return false;
+			}
 		}
 		
 		Scene oldScene = null;

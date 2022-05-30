@@ -128,13 +128,17 @@ public class GachaManager {
 					 * }
 					 */
 
+					 //TODO: add official banner for a week or maybe just remot stuff?
 					if (banner.getBannerType() == BannerType.EVENT) {
-						event_random_char.add(banner);
-						continue;
-					}
-					if (banner.getBannerType() == BannerType.WEAPON) {
-						event_random_wp.add(banner);
-						continue;
+						if(!(tesbanner.matches("GachaShowPanel_A081") || tesbanner.matches("GachaShowPanel_A082"))){
+							event_random_char.add(banner);
+							continue;	
+						}
+					}else if (banner.getBannerType() == BannerType.WEAPON) {
+						if(!tesbanner.matches("GachaShowPanel_A083")){
+							event_random_wp.add(banner);
+							continue;		
+						}
 					}
 
 					Grasscutter.getLogger().info("Banners " + banner.getScheduleId() + " | " + tesbanner);

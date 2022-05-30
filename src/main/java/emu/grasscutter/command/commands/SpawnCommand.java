@@ -18,6 +18,7 @@ import emu.grasscutter.game.entity.EntityVehicle;
 import emu.grasscutter.game.entity.GameEntity;
 import emu.grasscutter.game.player.Player;
 import emu.grasscutter.game.props.FightProperty;
+import emu.grasscutter.game.props.MonsterType;
 import emu.grasscutter.game.world.Scene;
 import emu.grasscutter.utils.Position;
 
@@ -62,7 +63,7 @@ public final class SpawnCommand implements CommandHandler {
         if(id == 1){
 
             var list = new ArrayList<>(GameData.getMonsterDataMap().keySet());
-            double maxRadius = Math.sqrt(amount * 0.2 / Math.PI);
+            double maxRadius = Math.sqrt(amount * 0.3 / Math.PI);
             Scene scene = targetPlayer.getScene();
             var random = new java.util.Random();
 
@@ -70,21 +71,22 @@ public final class SpawnCommand implements CommandHandler {
                 
                 var getme = random.nextInt(list.size());
                 var getrreal = list.get(getme).intValue();
-                
+                                
                 MonsterData monsterData = GameData.getMonsterDataMap().get(getrreal);
                 if (monsterData != null) {
 
-                    if(monsterData.getType() == "MONSTER_ENV_ANIMAL"){
-                        i--;
+                    if((monsterData.getType() == MonsterType.MONSTER_BOSS || monsterData.getType() == MonsterType.MONSTER_ORDINARY)){
+                        Position pos = GetRandomPositionInCircle(targetPlayer.getPos(), maxRadius).addY(3);
+                        CommandHandler.sendMessage(sender, "Spawn "+monsterData.getId()+" | "+monsterData.getMonsterName()+" | Index "+getme+"");
+                        scene.addEntity(new EntityMonster(scene, monsterData, pos, level));
                         continue;
                     }
-                    
-                    Position pos = GetRandomPositionInCircle(targetPlayer.getPos(), maxRadius).addY(3);
-                    CommandHandler.sendMessage(sender, "Spawn "+monsterData.getId()+" | "+monsterData.getMonsterName()+" | Index "+getme+" | Type "+monsterData.getType());
-                    scene.addEntity(new EntityMonster(scene, monsterData, pos, level));
+
                 }
 
-            }            
+                i--;
+            }
+
             return;
         }
 

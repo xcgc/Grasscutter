@@ -1,10 +1,16 @@
 package emu.grasscutter.command.commands;
 
+import static emu.grasscutter.utils.Language.translate;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.command.Command;
 import emu.grasscutter.command.CommandHandler;
 import emu.grasscutter.data.GameData;
-import emu.grasscutter.game.Account;
 import emu.grasscutter.data.excels.AvatarData;
 import emu.grasscutter.data.excels.ItemData;
 import emu.grasscutter.game.avatar.Avatar;
@@ -12,10 +18,7 @@ import emu.grasscutter.game.inventory.GameItem;
 import emu.grasscutter.game.inventory.ItemType;
 import emu.grasscutter.game.inventory.MaterialType;
 import emu.grasscutter.game.player.Player;
-
-import java.util.*;
-
-import static emu.grasscutter.utils.Language.translate;
+import emu.grasscutter.game.Account;
 
 @Command(label = "giveall", usage = "giveall", aliases = {
     "all" }, permission = "player.giveall", permissionTargeted = "player.giveall.others", threading = true, description = "commands.giveAll.description")
@@ -146,6 +149,31 @@ public final class GiveAllCommand implements CommandHandler {
       }
     }
   }
+    private static final Range[] testItemRanges = new Range[] {
+            new Range(106, 139),
+            new Range(1000, 1099),
+            new Range(2001, 3022),
+            new Range(23300, 23340),
+            new Range(23383, 23385),
+            new Range(78310, 78554),
+            new Range(99310, 99554),
+            new Range(100001, 100187),
+            new Range(100210, 100214),
+            new Range(100303, 100398),
+            new Range(100414, 100425),
+            new Range(100454, 103008),
+            new Range(109000, 109492),
+            new Range(115001, 118004),
+            new Range(141001, 141072),
+            new Range(220050, 221016),
+    };
+    private static final Integer[] testItemsIds = new Integer[] {
+            210, 211, 314, 315, 317, 1005, 1007, 1105, 1107, 1201, 1202,10366,
+            101212, 11411, 11506, 11507, 11508, 12505, 12506, 12508, 12509, 13503,
+            13506, 14411, 14503, 14505, 14508, 15504, 15505, 15506,
+            20001, 10002, 10003, 10004, 10005, 10006, 10008,100231,100232,100431,
+            101689,105001,105004, 106000,106001,108000,110000
+    };
 
   public boolean isTestAvatar(int avatarId) {
     return avatarId < 10000002 || avatarId >= 11000000;
@@ -179,32 +207,6 @@ public final class GiveAllCommand implements CommandHandler {
       return value >= this.min && value <= this.max;
     }
   }
-
-  private static final Range[] testItemRanges = new Range[] {
-      new Range(106, 139),
-      new Range(1000, 1099),
-      new Range(2001, 3022),
-      new Range(23300, 23340),
-      new Range(23383, 23385),
-      new Range(78310, 78554),
-      new Range(99310, 99554),
-      new Range(100001, 100187),
-      new Range(100210, 100214),
-      new Range(100303, 100398),
-      new Range(100414, 100425),
-      new Range(100454, 103008),
-      new Range(109000, 109492),
-      new Range(115001, 118004),
-      new Range(141001, 141072),
-      new Range(220050, 221016),
-  };
-  private static final Integer[] testItemsIds = new Integer[] {
-      210, 211, 314, 315, 317, 1005, 1007, 1105, 1107, 1201, 1202, 10366,
-      101212, 11411, 11506, 11507, 11508, 12505, 12506, 12508, 12509, 13503,
-      13506, 14411, 14503, 14505, 14508, 15504, 15505, 15506,
-      20001, 10002, 10003, 10004, 10005, 10006, 10008, 100231, 100232, 100431,
-      101689, 105001, 105004, 106000, 106001, 108000, 110000
-  };
 
   private static final Collection<Integer> testItemsList = Arrays.asList(testItemsIds);
 

@@ -1,11 +1,11 @@
 package emu.grasscutter.command.commands;
 
+import static emu.grasscutter.Configuration.GAME_OPTIONS;
 import static emu.grasscutter.utils.Language.translate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import emu.grasscutter.Grasscutter;
 import emu.grasscutter.command.Command;
 import emu.grasscutter.command.CommandHandler;
 import emu.grasscutter.data.GameData;
@@ -55,16 +55,19 @@ public final class SpawnCommand implements CommandHandler {
                 return;
         }
 
-        if (amount > Grasscutter.getConfig().server.game.gameOptions.CMD_Spawn) {
-          CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit",Grasscutter.getConfig().server.game.gameOptions.CMD_Spawn));
-          return;
+        Scene scene = targetPlayer.getScene();        
+        if (scene.getEntities().size() + amount > GAME_OPTIONS.sceneEntityLimit) {
+        	amount = Math.max(Math.min(GAME_OPTIONS.sceneEntityLimit - scene.getEntities().size(), amount), 0);
+        	CommandHandler.sendMessage(sender, translate(sender, "commands.spawn.limit_reached", amount));
+        	if (amount <= 0) {
+        		return;
+        	}
         }
-
+        
         if(id == 1){
 
             var list = new ArrayList<>(GameData.getMonsterDataMap().keySet());
             double maxRadius = Math.sqrt(amount * 0.3 / Math.PI);
-            Scene scene = targetPlayer.getScene();
             var random = new java.util.Random();
 
             for (int i = 0; i < amount; i++) {
@@ -96,8 +99,7 @@ public final class SpawnCommand implements CommandHandler {
         if (monsterData == null && gadgetData == null && itemData == null) {
             CommandHandler.sendMessage(sender, translate(sender, "commands.generic.invalid.entityId"));
             return;
-        }
-        Scene scene = targetPlayer.getScene();
+        } 
 
         double maxRadius = Math.sqrt(amount * 0.2 / Math.PI);
         for (int i = 0; i < amount; i++) {

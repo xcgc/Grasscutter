@@ -32,19 +32,20 @@ public final class DefaultAuthenticators {
             assert requestData != null; // This should never be null.
 
             boolean successfulLogin = false;
-            String address = request.getRequest().ip();
+            String address = Utils.getClientIpAddress(request.getRequest());
             String responseMessage = translate("messages.dispatch.account.username_error");
             String loggerMessage = "";
-            String version = "0";
+            String version = "69696969";
+            var full = request.getRequest().originalUrl();
+
 
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
                 var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
                 var Agent = request.getRequest().get("User-Agent");
-                Grasscutter.getLogger().info("PasswordAuthenticator (V: " + version + ") (OS: " + OS + "):"
-                        + request.getRequest().originalUrl() + " (" + Agent + ")");
+                Grasscutter.getLogger().info("PasswordAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
             } catch (Exception e) {
-                Grasscutter.getLogger().error("error get debug", e);
+                Grasscutter.getLogger().error("PasswordAuthenticator: error get debug: "+full);
             }
 
             if (version.contains(GameConstants.VERSION_SDK)) {
@@ -132,19 +133,19 @@ public final class DefaultAuthenticators {
             assert requestData != null;
 
             boolean successfulLogin;
-            String address = request.getRequest().ip();
+            String address = Utils.getClientIpAddress(request.getRequest());
             String loggerMessage = "";
             int playerCount = Grasscutter.getGameServer().getPlayers().size();
-            String version = "0";
+            String version = "69696969";
+            var full = request.getRequest().originalUrl();
 
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
                 var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
                 var Agent = request.getRequest().get("User-Agent");
-                Grasscutter.getLogger().info("TokenAuthenticator (V: " + version + ") (OS: " + OS + "):"
-                        + request.getRequest().originalUrl() + " (" + Agent + ")");
+                Grasscutter.getLogger().info("TokenAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
             } catch (Exception e) {
-                Grasscutter.getLogger().error("error get debug", e);
+                Grasscutter.getLogger().error("TokenAuthenticator: error get debug: "+full);
             }
 
             // 1.30.2.0 = 2.7.0
@@ -212,19 +213,19 @@ public final class DefaultAuthenticators {
             assert loginData != null;
 
             boolean successfulLogin;
-            String address = request.getRequest().ip();
+            String address = Utils.getClientIpAddress(request.getRequest());
             String loggerMessage = "";
             int playerCount = Grasscutter.getGameServer().getPlayers().size();
-            String version = "0";
+            String version = "69696969";
+            var full = request.getRequest().originalUrl();
 
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
                 var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
                 var Agent = request.getRequest().get("User-Agent");
-                Grasscutter.getLogger().info("SessionKeyAuthenticator (V: " + version + ") (OS: " + OS + "):"
-                        + request.getRequest().originalUrl() + " (" + Agent + ")");
+                Grasscutter.getLogger().info("SessionKeyAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
             } catch (Exception e) {
-                Grasscutter.getLogger().error("error get debug", e);
+                Grasscutter.getLogger().error("SessionKeyAuthenticator: error get debug: "+full);
             }
 
             if (version.contains(GameConstants.VERSION_SDK)) {

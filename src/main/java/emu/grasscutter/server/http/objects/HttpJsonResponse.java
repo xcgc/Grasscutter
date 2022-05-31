@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.Grasscutter.ServerDebugMode;
+import emu.grasscutter.utils.Utils;
 import express.http.HttpContextHandler;
 import express.http.Request;
 import express.http.Response;
@@ -36,7 +37,7 @@ public final class HttpJsonResponse implements HttpContextHandler {
 	public void handle(Request req, Response res) throws IOException {
 		// Checking for ALL here isn't required as when ALL is enabled enableDevLogging() gets enabled
 		if(SERVER.debugLevel == ServerDebugMode.MISSING && Arrays.stream(missingRoutes).anyMatch(x -> Objects.equals(x, req.baseUrl()))) {
-			Grasscutter.getLogger().info(translate("messages.dispatch.request", req.ip(), req.method(), req.baseUrl()) + (SERVER.debugLevel == ServerDebugMode.MISSING ? "(MISSING)" : ""));
+			Grasscutter.getLogger().info(translate("messages.dispatch.request", Utils.getClientIpAddress(req), req.method(), req.baseUrl()) + (SERVER.debugLevel == ServerDebugMode.MISSING ? "(MISSING)" : ""));
 		}
 		res.send(response);
 	}

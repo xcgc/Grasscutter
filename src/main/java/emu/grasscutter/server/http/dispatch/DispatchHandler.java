@@ -67,7 +67,7 @@ public final class DispatchHandler implements Router {
         response.send(responseData);
         
         // Log to console.
-        Grasscutter.getLogger().info(translate("messages.dispatch.account.login_attempt", request.ip()));
+        Grasscutter.getLogger().info(translate("messages.dispatch.account.login_attempt", Utils.getClientIpAddress(request)));
     }
 
     /**
@@ -90,7 +90,7 @@ public final class DispatchHandler implements Router {
         response.send(responseData);
 
         // Log to console.
-        Grasscutter.getLogger().info(translate("messages.dispatch.account.login_attempt", request.ip()));
+        Grasscutter.getLogger().info(translate("messages.dispatch.account.login_attempt", Utils.getClientIpAddress(request)));
     }
 
     /**
@@ -116,6 +116,6 @@ public final class DispatchHandler implements Router {
         response.send(responseData);
 
         // Log to console.
-        Grasscutter.getLogger().info(translate("messages.dispatch.account.login_attempt", request.ip()));
+        Grasscutter.getLogger().info(translate("messages.dispatch.account.login_attempt", Utils.getClientIpAddress(request)));
     }
 }

@@ -162,7 +162,7 @@ public class ConfigContainer {
     public static class GameOptions {
         public InventoryLimits inventoryLimits = new InventoryLimits();
         public AvatarLimits avatarLimits = new AvatarLimits();
-        public int worldEntityLimit = 1000; // Unenforced. TODO: Implement.
+        public int sceneEntityLimit = 150; //CMD_Spawn
 
         public boolean watchGachaConfig = false;
         public boolean enableShopItems = true;
@@ -172,7 +172,6 @@ public class ConfigContainer {
 
         // DockerGC
         public int CMD_Give_WP = 10;
-	    public int CMD_Spawn = 150;
 		public int CMD_Give = 10000000;
 		public int CMD_Drop = 100;
         public int CMD_DayLogin = 8;

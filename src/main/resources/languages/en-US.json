@@ -140,7 +140,7 @@
       "description": "Forces someone to join the world of others"
     },
     "enter_dungeon": {
-      "usage": "Usage: enterdungeon <dungeon ID>",
+      "usage": "Usage: enterdungeon <dungeonID>",
       "changed": "Changed to dungeon %s.",
       "not_found_error": "Dungeon does not exist.",
       "in_dungeon_error": "You are already in that dungeon.",
@@ -160,7 +160,7 @@
       "description": "Gives the player a specified artifact"
     },
     "giveChar": {
-      "usage": "Usage: givechar <player> <avatarId> [level]",
+      "usage": "Usage: givechar <player> <avatarID> [level]",
       "given": "Given %s with level %s to %s.",
       "invalid_avatar_id": "Invalid avatar ID.",
       "invalid_avatar_level": "Invalid avatar level.",
@@ -228,7 +228,7 @@
       "description": "Get coordinates"
     },
     "quest": {
-      "usage": "quest <add|finish> [quest ID]",
+      "usage": "quest <add|finish> [questID]",
       "added": "Quest %s added.",
       "finished": "Finished quest %s.",
       "not_found": "Quest not found.",
@@ -251,7 +251,7 @@
       "description": "Reset target player's shop refresh time"
     },
     "sendMail": {
-      "usage": "Usage: sendmail <userId|all|help> [templateId]",
+      "usage": "Usage: sendmail <userID|all|help> [templateID]",
       "user_not_exist": "The user with an ID of '%s' does not exist.",
       "start_composition": "Starting composition of message.\nPlease use '/sendmail <title>' to continue.\nYou can use '/sendmail stop' at any time.",
       "templates": "Mail templates coming soon implemented...",
@@ -307,6 +307,7 @@
     "spawn": {
       "usage": "Usage: spawn <entityID> [amount] [level(monster only)]",
       "success": "Spawned %s of %s.",
+      "limit_reached": "Scene spawn limit reached. Spawning %s entities instead.",
       "description": "Spawns an entity near you"
     },
     "stop": {
@@ -362,7 +363,7 @@
       "description": "Change the player's position"
     },
     "weather": {
-      "usage": "Usage: weather <weatherID> [climateID]",
+      "usage": "Usage: weather <weatherID> <climateID>",
       "success": "Changed weather to %s with climate %s.",
       "invalid_id": "Invalid ID.",
       "description": "Changes the weather"

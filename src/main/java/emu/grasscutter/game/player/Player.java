@@ -1228,7 +1228,9 @@ public class Player {
 		while (it.hasNext()) {
 			CoopRequest req = it.next();
 			if (req.isExpired()) {
-				req.getRequester().sendPacket(new PacketPlayerApplyEnterMpResultNotify(this, false,
+				req.getRequester().sendPacket(new PacketPlayerApplyEnterMpResultNotify(
+						this,
+						false,
 						PlayerApplyEnterMpResultNotifyOuterClass.PlayerApplyEnterMpResultNotify.Reason.REASON_SYSTEM_JUDGE));
 				it.remove();
 			}

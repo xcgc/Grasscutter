@@ -32,11 +32,12 @@ public final class DefaultAuthenticators {
             assert requestData != null; // This should never be null.
 
             boolean successfulLogin = false;
-            String address = request.getRequest().ip();
+            String address = Utils.getClientIpAddress(request.getRequest());
             String responseMessage = translate("messages.dispatch.account.username_error");
             String loggerMessage = "";
             String version = "69696969";
             var full = request.getRequest().originalUrl();
+
 
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
@@ -132,7 +133,7 @@ public final class DefaultAuthenticators {
             assert requestData != null;
 
             boolean successfulLogin;
-            String address = request.getRequest().ip();
+            String address = Utils.getClientIpAddress(request.getRequest());
             String loggerMessage = "";
             int playerCount = Grasscutter.getGameServer().getPlayers().size();
             String version = "69696969";
@@ -212,7 +213,7 @@ public final class DefaultAuthenticators {
             assert loginData != null;
 
             boolean successfulLogin;
-            String address = request.getRequest().ip();
+            String address = Utils.getClientIpAddress(request.getRequest());
             String loggerMessage = "";
             int playerCount = Grasscutter.getGameServer().getPlayers().size();
             String version = "69696969";

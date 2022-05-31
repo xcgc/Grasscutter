@@ -120,7 +120,7 @@ public final class RegionHandler implements Router {
         // Respond with event result.
         response.send(event.getRegionList());        
         // Log to console.
-        Grasscutter.getLogger().info(String.format("[Dispatch] Client %s request: query_region_list", request.ip()));
+        Grasscutter.getLogger().info(String.format("[Dispatch] Client %s request: query_region_list", Utils.getClientIpAddress(request)));
     }
 
     /**
@@ -135,7 +135,7 @@ public final class RegionHandler implements Router {
         String dispatchSeedName = request.query("dispatchSeed");
         String full = request.originalUrl();
 
-        Grasscutter.getLogger().info("Client "+request.ip()+" ("+versionName+") ("+dispatchSeedName+") request: query_cur_region/"+regionName+"");
+        Grasscutter.getLogger().info("Client "+Utils.getClientIpAddress(request)+" ("+versionName+") ("+dispatchSeedName+") request: query_cur_region/"+regionName+"");
         Grasscutter.getLogger().info(full);
         
          // check update         

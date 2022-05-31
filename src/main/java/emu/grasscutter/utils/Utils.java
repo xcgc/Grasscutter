@@ -33,19 +33,19 @@ import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 
-@SuppressWarnings({"UnusedReturnValue", "BooleanMethodIsAlwaysInverted"})
+@SuppressWarnings({ "UnusedReturnValue", "BooleanMethodIsAlwaysInverted" })
 public final class Utils {
 	public static final Random random = new Random();
-	
+
 	public static int randomRange(int min, int max) {
 		return random.nextInt(max - min + 1) + min;
 	}
-	
+
 	public static float randomFloatRange(float min, float max) {
 		return random.nextFloat() * (max - min) + min;
 	}
 
-	public static void pause(int time){
+	public static void pause(int time) {
 		long Time0 = System.currentTimeMillis();
 		long Time1;
 		long runTime = 0;
@@ -54,11 +54,11 @@ public final class Utils {
 			runTime = Time1 - Time0;
 		}
 	}
-	
+
 	public static double getDist(Position pos1, Position pos2) {
 		double xs = pos1.getX() - pos2.getX();
 		xs = xs * xs;
-		
+
 		double ys = pos1.getY() - pos2.getY();
 		ys = ys * ys;
 
@@ -71,61 +71,64 @@ public final class Utils {
 	public static int getCurrentSeconds() {
 		return (int) (System.currentTimeMillis() / 1000.0);
 	}
-	
+
 	public static String lowerCaseFirstChar(String s) {
 		StringBuilder sb = new StringBuilder(s);
 		sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
 		return sb.toString();
 	}
-	
+
 	public static String toString(InputStream inputStream) throws IOException {
 		BufferedInputStream bis = new BufferedInputStream(inputStream);
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
 		for (int result = bis.read(); result != -1; result = bis.read()) {
-		    buf.write((byte) result);
+			buf.write((byte) result);
 		}
 		return buf.toString();
 	}
-	
+
 	public static void logByteArray(byte[] array) {
 		ByteBuf b = Unpooled.wrappedBuffer(array);
 		Grasscutter.getLogger().info("\n" + ByteBufUtil.prettyHexDump(b));
 		b.release();
 	}
-	
+
 	private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
+
 	public static String bytesToHex(byte[] bytes) {
-		if (bytes == null) return "";
-	    char[] hexChars = new char[bytes.length * 2];
-	    for (int j = 0; j < bytes.length; j++) {
-	        int v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-	        hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-	    }
-	    return new String(hexChars);
+		if (bytes == null)
+			return "";
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+			hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
-	
+
 	public static String bytesToHex(ByteBuf buf) {
-	    return bytesToHex(byteBufToArray(buf));
+		return bytesToHex(byteBufToArray(buf));
 	}
-	
+
 	public static byte[] byteBufToArray(ByteBuf buf) {
 		byte[] bytes = new byte[buf.capacity()];
 		buf.getBytes(0, bytes);
 		return bytes;
 	}
-	
+
 	public static int abilityHash(String str) {
 		int v7 = 0;
 		int v8 = 0;
-	    while (v8 < str.length()) {
-	    	v7 = str.charAt(v8++) + 131 * v7;
-	    }
-	    return v7;
+		while (v8 < str.length()) {
+			v7 = str.charAt(v8++) + 131 * v7;
+		}
+		return v7;
 	}
 
 	/**
 	 * Creates a string with the path to a file.
+	 * 
 	 * @param path The path to the file.
 	 * @return A path using the operating system's file separator.
 	 */
@@ -135,6 +138,7 @@ public final class Utils {
 
 	/**
 	 * Checks if a file exists on the file system.
+	 * 
 	 * @param path The path to the file.
 	 * @return True if the file exists, false otherwise.
 	 */
@@ -144,6 +148,7 @@ public final class Utils {
 
 	/**
 	 * Creates a folder on the file system.
+	 * 
 	 * @param path The path to the folder.
 	 * @return True if the folder was created, false otherwise.
 	 */
@@ -153,13 +158,14 @@ public final class Utils {
 
 	/**
 	 * Copies a file from the archive's resources to the file system.
-	 * @param resource The path to the resource.
+	 * 
+	 * @param resource    The path to the resource.
 	 * @param destination The path to copy the resource to.
 	 * @return True if the file was copied, false otherwise.
 	 */
 	public static boolean copyFromResources(String resource, String destination) {
 		try (InputStream stream = Grasscutter.class.getResourceAsStream(resource)) {
-			if(stream == null) {
+			if (stream == null) {
 				Grasscutter.getLogger().warn("Could not find resource: " + resource);
 				return false;
 			}
@@ -174,7 +180,8 @@ public final class Utils {
 
 	/**
 	 * Get object with null fallback.
-	 * @param nonNull The object to return if not null.
+	 * 
+	 * @param nonNull  The object to return if not null.
 	 * @param fallback The object to return if null.
 	 * @return One of the two provided objects.
 	 */
@@ -184,13 +191,14 @@ public final class Utils {
 
 	/**
 	 * Logs an object to the console.
+	 * 
 	 * @param object The object to log.
 	 */
 	public static void logObject(Object object) {
 		String asJson = Grasscutter.getGsonFactory().toJson(object);
 		Grasscutter.getLogger().info(asJson);
 	}
-	
+
 	/**
 	 * Checks for required files and folders before startup.
 	 */
@@ -203,36 +211,40 @@ public final class Utils {
 		String dataFolder = config.folderStructure.data;
 
 		// Check for resources folder.
-		if(!fileExists(resourcesFolder)) {
+		if (!fileExists(resourcesFolder)) {
 			logger.info(translate("messages.status.create_resources"));
 			logger.info(translate("messages.status.resources_error"));
-			createFolder(resourcesFolder); exit = true;
+			createFolder(resourcesFolder);
+			exit = true;
 		}
 
 		// Check for BinOutput + ExcelBinOutput.
-		if(!fileExists(resourcesFolder + "BinOutput") ||
+		if (!fileExists(resourcesFolder + "BinOutput") ||
 				!fileExists(resourcesFolder + "ExcelBinOutput")) {
 			logger.info(translate("messages.status.resources_error"));
 			exit = true;
 		}
 
 		// Check for game data.
-		if(!fileExists(dataFolder))
+		if (!fileExists(dataFolder))
 			createFolder(dataFolder);
 
-		// Make sure the data folder is populated, if there are any missing files copy them from resources
-		//DataLoader.CheckAllFiles();
+		// Make sure the data folder is populated, if there are any missing files copy
+		// them from resources
+		// DataLoader.CheckAllFiles();
 
-		if(exit) GameServer.doExit(0,"BinOutput");
+		if (exit)
+			GameServer.doExit(0, "BinOutput");
 	}
 
 	/**
 	 * Gets the timestamp of the next hour.
+	 * 
 	 * @return The timestamp in UNIX seconds.
 	 */
 	public static int getNextTimestampOfThisHour(int hour, String timeZone, int param) {
 		ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of(timeZone));
-		for (int i = 0; i < param; i ++){
+		for (int i = 0; i < param; i++) {
 			if (zonedDateTime.getHour() < hour) {
 				zonedDateTime = zonedDateTime.withHour(hour).withMinute(0).withSecond(0);
 			} else {
@@ -244,6 +256,7 @@ public final class Utils {
 
 	/**
 	 * Gets the timestamp of the next hour in a week.
+	 * 
 	 * @return The timestamp in UNIX seconds.
 	 */
 	public static int getNextTimestampOfThisHourInNextWeek(int hour, String timeZone, int param) {
@@ -252,7 +265,8 @@ public final class Utils {
 			if (zonedDateTime.getDayOfWeek() == DayOfWeek.MONDAY && zonedDateTime.getHour() < hour) {
 				zonedDateTime = ZonedDateTime.now(ZoneId.of(timeZone)).withHour(hour).withMinute(0).withSecond(0);
 			} else {
-				zonedDateTime = zonedDateTime.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(hour).withMinute(0).withSecond(0);
+				zonedDateTime = zonedDateTime.with(TemporalAdjusters.next(DayOfWeek.MONDAY)).withHour(hour)
+						.withMinute(0).withSecond(0);
 			}
 		}
 		return (int) zonedDateTime.toInstant().atZone(ZoneOffset.UTC).toEpochSecond();
@@ -260,6 +274,7 @@ public final class Utils {
 
 	/**
 	 * Gets the timestamp of the next hour in a month.
+	 * 
 	 * @return The timestamp in UNIX seconds.
 	 */
 	public static int getNextTimestampOfThisHourInNextMonth(int hour, String timeZone, int param) {
@@ -268,7 +283,8 @@ public final class Utils {
 			if (zonedDateTime.getDayOfMonth() == 1 && zonedDateTime.getHour() < hour) {
 				zonedDateTime = ZonedDateTime.now(ZoneId.of(timeZone)).withHour(hour).withMinute(0).withSecond(0);
 			} else {
-				zonedDateTime = zonedDateTime.with(TemporalAdjusters.firstDayOfNextMonth()).withHour(hour).withMinute(0).withSecond(0);
+				zonedDateTime = zonedDateTime.with(TemporalAdjusters.firstDayOfNextMonth()).withHour(hour).withMinute(0)
+						.withSecond(0);
 			}
 		}
 		return (int) zonedDateTime.toInstant().atZone(ZoneOffset.UTC).toEpochSecond();
@@ -276,76 +292,85 @@ public final class Utils {
 
 	/**
 	 * Retrieves a string from an input stream.
+	 * 
 	 * @param stream The input stream.
 	 * @return The string.
 	 */
 	public static String readFromInputStream(@Nullable InputStream stream) {
-		if(stream == null) return "empty";
-		
+		if (stream == null)
+			return "empty";
+
 		StringBuilder stringBuilder = new StringBuilder();
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-			String line; while ((line = reader.readLine()) != null) {
+			String line;
+			while ((line = reader.readLine()) != null) {
 				stringBuilder.append(line);
-			} stream.close();
+			}
+			stream.close();
 		} catch (IOException e) {
 			Grasscutter.getLogger().warn("Failed to read from input stream.");
 		} catch (NullPointerException ignored) {
 			return "empty";
-		} return stringBuilder.toString();
+		}
+		return stringBuilder.toString();
 	}
-	
-    /**
-	  * get progressPercentage
-	  */
-    public static void progressPercentage(int remain, int total) {
-      if (remain > total) {
-          throw new IllegalArgumentException();
-      }
-      int maxBareSize = 10; // 10unit for 100%
-      int remainProcent = ((100 * remain) / total) / maxBareSize;
-      char defaultChar = '-';
-      String icon = "*";
-      String bare = new String(new char[maxBareSize]).replace('\0', defaultChar) + "]";
-      StringBuilder bareDone = new StringBuilder();
-      bareDone.append("[");
-      for (int i = 0; i < remainProcent; i++) {
-          bareDone.append(icon);
-      }
-      String bareRemain = bare.substring(remainProcent, bare.length());
-      System.out.print("\r" + bareDone + bareRemain + " " + remainProcent * 10 + "%");
-      if (remain == total) {
-          System.out.print("\n");
-      }
-    }
-
-    public static final String isValidEmail = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
 
 	/**
-	 * Performs a linear interpolation using a table of fixed points to create an effective piecewise f(x) = y function.
+	 * get progressPercentage
+	 */
+	public static void progressPercentage(int remain, int total) {
+		if (remain > total) {
+			throw new IllegalArgumentException();
+		}
+		int maxBareSize = 10; // 10unit for 100%
+		int remainProcent = ((100 * remain) / total) / maxBareSize;
+		char defaultChar = '-';
+		String icon = "*";
+		String bare = new String(new char[maxBareSize]).replace('\0', defaultChar) + "]";
+		StringBuilder bareDone = new StringBuilder();
+		bareDone.append("[");
+		for (int i = 0; i < remainProcent; i++) {
+			bareDone.append(icon);
+		}
+		String bareRemain = bare.substring(remainProcent, bare.length());
+		System.out.print("\r" + bareDone + bareRemain + " " + remainProcent * 10 + "%");
+		if (remain == total) {
+			System.out.print("\n");
+		}
+	}
+
+	public static final String isValidEmail = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+
+	/**
+	 * Performs a linear interpolation using a table of fixed points to create an
+	 * effective piecewise f(x) = y function.
+	 * 
 	 * @param x
 	 * @param xyArray Array of points in [[x0,y0], ... [xN, yN]] format
 	 * @return f(x) = y
 	 */
 	public static int lerp(int x, int[][] xyArray) {
 		try {
-			if (x <= xyArray[0][0]){  // Clamp to first point
+			if (x <= xyArray[0][0]) { // Clamp to first point
 				return xyArray[0][1];
-			} else if (x >= xyArray[xyArray.length-1][0]) {  // Clamp to last point
-				return xyArray[xyArray.length-1][1];
+			} else if (x >= xyArray[xyArray.length - 1][0]) { // Clamp to last point
+				return xyArray[xyArray.length - 1][1];
 			}
-			// At this point we're guaranteed to have two lerp points, and pity be somewhere between them.
-			for (int i=0; i < xyArray.length-1; i++) {
-				if (x == xyArray[i+1][0]) {
-					return xyArray[i+1][1];
+			// At this point we're guaranteed to have two lerp points, and pity be somewhere
+			// between them.
+			for (int i = 0; i < xyArray.length - 1; i++) {
+				if (x == xyArray[i + 1][0]) {
+					return xyArray[i + 1][1];
 				}
-				if (x < xyArray[i+1][0]) {
+				if (x < xyArray[i + 1][0]) {
 					// We are between [i] and [i+1], interpolation time!
-					// Using floats would be slightly cleaner but we can just as easily use ints if we're careful with order of operations. 
+					// Using floats would be slightly cleaner but we can just as easily use ints if
+					// we're careful with order of operations.
 					int position = x - xyArray[i][0];
-					int fullDist = xyArray[i+1][0] - xyArray[i][0];
+					int fullDist = xyArray[i + 1][0] - xyArray[i][0];
 					int prevValue = xyArray[i][1];
-					int fullDelta = xyArray[i+1][1] - prevValue;
-					return prevValue + ( (position * fullDelta) / fullDist );
+					int fullDelta = xyArray[i + 1][1] - prevValue;
+					return prevValue + ((position * fullDelta) / fullDist);
 				}
 			}
 		} catch (IndexOutOfBoundsException e) {
@@ -356,7 +381,8 @@ public final class Utils {
 
 	/**
 	 * Checks if an int is in an int[]
-	 * @param key int to look for
+	 * 
+	 * @param key   int to look for
 	 * @param array int[] to look in
 	 * @return key in array
 	 */
@@ -371,9 +397,11 @@ public final class Utils {
 
 	/**
 	 * Return a copy of minuend without any elements found in subtrahend.
-	 * @param minuend The array we want elements from
+	 * 
+	 * @param minuend    The array we want elements from
 	 * @param subtrahend The array whose elements we don't want
-	 * @return The array with only the elements we want, in the order that minuend had them
+	 * @return The array with only the elements we want, in the order that minuend
+	 *         had them
 	 */
 	public static int[] setSubtract(int[] minuend, int[] subtrahend) {
 		IntList temp = new IntArrayList();
@@ -387,6 +415,7 @@ public final class Utils {
 
 	/**
 	 * Gets the language code from a given locale.
+	 * 
 	 * @param locale A locale.
 	 * @return A string in the format of 'XX-XX'.
 	 */
@@ -396,6 +425,7 @@ public final class Utils {
 
 	/**
 	 * Base64 encodes a given byte array.
+	 * 
 	 * @param toEncode An array of bytes.
 	 * @return A base64 encoded string.
 	 */
@@ -405,6 +435,7 @@ public final class Utils {
 
 	/**
 	 * Base64 decodes a given string.
+	 * 
 	 * @param toDecode A base64 encoded string.
 	 * @return An array of bytes.
 	 */
@@ -414,6 +445,7 @@ public final class Utils {
 
 	/**
 	 * Safely JSON decodes a given string.
+	 * 
 	 * @param jsonData The JSON-encoded data.
 	 * @return JSON decoded data, or null if an exception occurred.
 	 */
@@ -423,5 +455,28 @@ public final class Utils {
 		} catch (Exception ignored) {
 			return null;
 		}
+	}
+
+	private static final String[] HEADERS_TO_TRY = {
+			"X-Forwarded-For",
+			"Proxy-Client-IP",
+			"WL-Proxy-Client-IP",
+			"HTTP_X_FORWARDED_FOR",
+			"HTTP_X_FORWARDED",
+			"HTTP_X_CLUSTER_CLIENT_IP",
+			"HTTP_CLIENT_IP",
+			"HTTP_FORWARDED_FOR",
+			"HTTP_FORWARDED",
+			"HTTP_VIA",
+			"REMOTE_ADDR" };
+
+	public static String getClientIpAddress(express.http.Request request) {
+		for (String header : HEADERS_TO_TRY) {
+			String ip = request.get(header);
+			if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
+				return ip;
+			}
+		}
+		return request.host();
 	}
 }

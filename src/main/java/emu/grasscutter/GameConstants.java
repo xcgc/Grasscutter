@@ -7,7 +7,9 @@ import emu.grasscutter.utils.Utils;
 
 public final class GameConstants {
 	public static String VERSION = "2.7.0";
-	
+	public static String VERSION_SDK = "1.30";//TODO: add list sdk?
+	public static String VERSION_MSG_ERROR = "Server Version is "+GameConstants.VERSION_SDK+"\nYour Current Version is %s \n\nPlease update your game client from official server by turning  off proxy or download last client from yuuki site.\nif it still doesn't work please send screenshot to discord support\n\nInfo: game.yuuki.me";
+
 	public static final int MAX_TEAMS = 4;
 	public static final int MAIN_CHARACTER_MALE = 10000005;
 	public static final int MAIN_CHARACTER_FEMALE = 10000007;

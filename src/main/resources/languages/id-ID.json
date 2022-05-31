@@ -303,6 +303,7 @@
       "spawn": {
         "usage": "Penggunaan: spawn <entityId> [amount] [level(monster only)]",
         "success": "Muncul %s dari %s.",
+        "limit_reached": "Batas spawn di adegan ini telah tercapai. batas saat ini %s",
         "description": "Memunculkan entitas di dekat mu"
       },
       "stop": {

@@ -127,17 +127,37 @@ public final class RegionHandler implements Router {
      * @route /query_cur_region/:region
      */
     private static void queryCurrentRegion(Request request, Response response) {
+
         // Get region to query.
         String regionName = request.params("region");
-
-        // check update
+        
         String versionName = request.query("version");
-        if(!versionName.contains(GameConstants.VERSION) ) {
-            var updatedQuery = QueryCurrRegionHttpRsp.newBuilder()
-            .setMsg("Current version is "+GameConstants.VERSION+"\nPlease Download Latest Client!!!\n~ Info game.yuuki.me")
-            .build();     
-            response.send(Utils.base64Encode(updatedQuery.toByteString().toByteArray()));
-            return;            
+        String dispatchSeedName = request.query("dispatchSeed");
+        String full = request.originalUrl();
+
+        Grasscutter.getLogger().info("Client "+request.ip()+" ("+versionName+") ("+dispatchSeedName+") request: query_cur_region/"+regionName+"");
+        Grasscutter.getLogger().info(full);
+        
+         // check update         
+        if(!versionName.contains(GameConstants.VERSION)) {
+
+            boolean iserror = true;
+            
+            if(versionName.contains("2.7.50")){
+                // ReportErrorCode DISPATCH_REGION_DECRYPT_FAIL = 4214;
+                iserror=false;
+            }
+
+            if(iserror){
+             var updatedQuery = QueryCurrRegionHttpRsp.newBuilder()
+             .setMsg("Server Version is "+GameConstants.VERSION+"\nYour Current Version is "+versionName+"\n\nPlease update your game client from official server by turning  off proxy or download last client from yuuki site.\n\nInfo: game.yuuki.me")
+             .build();
+             response.send(Utils.base64Encode(updatedQuery.toByteString().toByteArray()));                          
+            }else{
+             response.send("0");    
+            }
+            
+            return;
         }
         
         // Get region data.
@@ -151,9 +171,6 @@ public final class RegionHandler implements Router {
         QueryCurrentRegionEvent event = new QueryCurrentRegionEvent(regionData); event.call();
         // Respond with event result.
         response.send(event.getRegionInfo());
-
-        // Log to console.
-        Grasscutter.getLogger().info(String.format("Client %s request: query_cur_region/%s", request.ip(), regionName));
     }
 
     /**

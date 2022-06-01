@@ -55,13 +55,15 @@ public final class SpawnCommand implements CommandHandler {
                 return;
         }
 
-        Scene scene = targetPlayer.getScene();        
-        if (scene.getEntities().size() + amount > GAME_OPTIONS.sceneEntityLimit) {
-        	amount = Math.max(Math.min(GAME_OPTIONS.sceneEntityLimit - scene.getEntities().size(), amount), 0);
-        	CommandHandler.sendMessage(sender, translate(sender, "commands.spawn.limit_reached", amount));
-        	if (amount <= 0) {
-        		return;
-        	}
+        Scene scene = targetPlayer.getScene();
+        List<GameEntity> EntityMonster = scene.getEntities().values().stream()
+        .filter(entity -> entity instanceof EntityMonster)
+        .toList();
+        
+        var etnow = EntityMonster.size() + amount;
+        if (etnow > GAME_OPTIONS.sceneEntityLimit) {
+        	CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit", GAME_OPTIONS.sceneEntityLimit,etnow));
+        	return;
         }
         
         if(id == 1){

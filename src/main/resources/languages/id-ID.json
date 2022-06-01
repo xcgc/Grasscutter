@@ -406,7 +406,8 @@
         "clear": {
           "done": "Kami telah menghapus %s item dari akun mu (limit setiap %s item)"
         },
-        "limit": "Perintah ini terbatas hanya untuk setiap %s (total jumlahnnya)"
+        "limit": "Perintah ini dibatasi hanya untuk %s Entitas, Saat ini ada %s Entitas dalam adegan ini",
+        "limit2": "Perintah ini dibatasi hanya untuk setiap %s jumlahnya."
       }
     }
   }

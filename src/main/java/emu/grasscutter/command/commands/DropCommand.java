@@ -1,11 +1,12 @@
 package emu.grasscutter.command.commands;
-
+import static emu.grasscutter.Configuration.GAME_OPTIONS;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.command.Command;
 import emu.grasscutter.command.CommandHandler;
 import emu.grasscutter.data.GameData;
 import emu.grasscutter.data.excels.ItemData;
 import emu.grasscutter.game.entity.EntityItem;
+import emu.grasscutter.game.entity.GameEntity;
 import emu.grasscutter.game.player.Player;
 import emu.grasscutter.utils.Position;
 
@@ -48,9 +49,13 @@ public final class DropCommand implements CommandHandler {
             return;
         }
 
-        if (amount > Grasscutter.getConfig().server.game.gameOptions.CMD_Drop) {
-          CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit",Grasscutter.getConfig().server.game.gameOptions.CMD_Drop));
-          return;
+        List<GameEntity> EntityItem = targetPlayer.getScene().getEntities().values().stream()
+          .filter(entity -> entity instanceof EntityItem)
+          .toList();
+          var entow = EntityItem.size() + amount;
+          if (entow > GAME_OPTIONS.CMD_Drop) {
+        	CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit", GAME_OPTIONS.CMD_Drop,entow));
+        	return;
         }
 
         if (itemData.isEquip()) {

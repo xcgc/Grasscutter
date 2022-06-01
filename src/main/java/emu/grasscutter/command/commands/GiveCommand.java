@@ -1,5 +1,5 @@
 package emu.grasscutter.command.commands;
-
+import static emu.grasscutter.Configuration.GAME_OPTIONS;
 import emu.grasscutter.Grasscutter;
 import emu.grasscutter.command.Command;
 import emu.grasscutter.command.CommandHandler;
@@ -96,8 +96,9 @@ public final class GiveCommand implements CommandHandler {
                 return;
         }
 
-        if (amount > Grasscutter.getConfig().server.game.gameOptions.CMD_Give) {
-          CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit",Grasscutter.getConfig().server.game.gameOptions.CMD_Give));
+        // Normal Limit
+        if (amount > GAME_OPTIONS.CMD_Give) {
+          CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit2",GAME_OPTIONS.CMD_Give));
           return;
         }
 
@@ -107,10 +108,18 @@ public final class GiveCommand implements CommandHandler {
             return;
         }
 
-        // limit weapon
+        // Limit Weapon
         if (itemData.getItemType() == ItemType.ITEM_WEAPON) {
-            if (amount > Grasscutter.getConfig().server.game.gameOptions.CMD_Give_WP) {
-                CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit",Grasscutter.getConfig().server.game.gameOptions.CMD_Give_WP));
+            if (amount > GAME_OPTIONS.CMD_Give_WP) {
+                CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit2",GAME_OPTIONS.CMD_Give_WP));
+                return;
+            }
+        }
+
+        // Limit Artifact
+        if (itemData.getItemType() == ItemType.ITEM_RELIQUARY) {
+            if (amount > GAME_OPTIONS.CMD_Give_ART) {
+                CommandHandler.sendMessage(sender, translate(sender, "dockergc.commands.limit2",GAME_OPTIONS.CMD_Give_WP));
                 return;
             }
         }

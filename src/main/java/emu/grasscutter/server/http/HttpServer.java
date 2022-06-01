@@ -173,8 +173,8 @@ public final class HttpServer {
     public static class UnhandledRequestRouter implements Router {
         @Override public void applyRoutes(Express express, Javalin handle) {
             handle.error(404, context -> {
-                if(SERVER.debugLevel == ServerDebugMode.MISSING)
-                    Grasscutter.getLogger().info(translate("messages.dispatch.unhandled_request_error", context.method(), context.url()));
+
+                Grasscutter.getLogger().info(translate("messages.dispatch.unhandled_request_error", context.method(), context.url()));
                 context.contentType("text/html");
                 
                 File file = new File(HTTP_STATIC_FILES.errorFile);

@@ -49,20 +49,11 @@ public final class GenericHandler implements Router {
         // Test api?
         // abtest-api-data-sg.hoyoverse.com
         express.post("/data_abtest_api/config/experiment/list", new HttpJsonResponse(
-                "{\"retcode\":0,\"success\":true,\"message\":\"\",\"data\":[{\"code\":1000,\"type\":2,\"config_id\":\"14\",\"period_id\":\"6036_99\",\"version\":\"1\",\"configs\":{\"cardType\":\"old\"}}]}"));
+                "{\"retcode\":0,\"success\":true,\"message\":\"\",\"data\":[{\"code\":1000,\"type\":2,\"config_id\":\"14\",\"period_id\":\"6036_99\",\"version\":\"1\",\"configs\":{\"cardType\":\"old\"}}]}"));        
 
-        // log-upload-os.mihoyo.com
-        express.all("/log/sdk/upload", new HttpJsonResponse("{\"code\":0}"));
-        express.all("/sdk/upload", new HttpJsonResponse("{\"code\":0}"));
-        express.post("/sdk/dataUpload", new HttpJsonResponse("{\"code\":0}"));
-        // /perf/config/verify?device_id=xxx&platform=x&name=xxx
-        express.all("/perf/config/verify", new HttpJsonResponse("{\"code\":0}"));
-
-        // webstatic-sea.hoyoverse.com
         express.get("/admin/mi18n/plat_oversea/*", new WebStaticVersionResponse());
-
         express.get("/status/server", GenericHandler::serverStatus);
-
+        
         // API DockerGC (TODO)
         express.all("/api/ping", new HttpJsonResponse("{\"code\":200}"));
     }

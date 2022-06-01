@@ -56,6 +56,8 @@ public final class GiveCharCommand implements CommandHandler {
             return;
         }
 
+        CommandHandler.sendMessage(sender, " Name: "+avatarData.getName()+" Abilities: "+avatarData.getAbilities().size()+" ");
+
         // Check level.
         if (level > 90) {
             CommandHandler.sendMessage(sender, translate(sender, "commands.generic.invalid.avatarLevel"));

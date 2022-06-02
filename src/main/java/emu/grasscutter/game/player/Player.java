@@ -1312,7 +1312,6 @@ public class Player {
 				List<Integer> tmpav = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars();
 
 				boolean soremoveit = false;
-				boolean onlylastone = true;
 
 				// check team
 				for (int i = tmpav.size() - 1; i >= 0; i--) {
@@ -1326,9 +1325,10 @@ public class Player {
 						Grasscutter.getLogger().info("Remove null Avatar: " + avatarId);
 						tmpav.remove(i);
 						noremove = false;
+					} else {
+						Grasscutter.getLogger().debug("Avatar: " + avatarData.getName() + " (Index " + i + ") | "
+								+ avatarData.getId() + " | " + avatarData.getSkillDepotId());
 					}
-					Grasscutter.getLogger().debug("Avatar: " + avatarData.getName() + " (Index " + i + ") | "
-							+ avatarData.getId() + " | " + avatarData.getSkillDepotId());
 
 					// Delete Avatar Testing from Team
 					if (avatarId < 10000002 || avatarId >= 11000000) {
@@ -1365,10 +1365,8 @@ public class Player {
 						IndexGoodAvatars = i;
 					} else {
 						// hapus
-						if (onlylastone) {
-							soremoveit = true;
-							onlylastone = false;
-						}
+						Grasscutter.getLogger().info("found it");
+						soremoveit = true;
 					}
 
 					IndexNowAvatars = i;

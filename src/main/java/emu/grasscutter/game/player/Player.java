@@ -1310,8 +1310,9 @@ public class Player {
 
 				List<Integer> dupcheck = new ArrayList<>();
 				List<Integer> tmpav = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars();
-				
+
 				boolean soremoveit = false;
+				boolean onlylastone = true;
 
 				// check team
 				for (int i = tmpav.size() - 1; i >= 0; i--) {
@@ -1364,7 +1365,10 @@ public class Player {
 						IndexGoodAvatars = i;
 					} else {
 						// hapus
-						soremoveit = true;
+						if (onlylastone) {
+							soremoveit = true;
+							onlylastone = false;
+						}
 					}
 
 					IndexNowAvatars = i;
@@ -1442,19 +1446,23 @@ public class Player {
 							// Check Main Avtar
 							if (check_avatar_main) {
 
-								Grasscutter.getLogger().debug( "Name: " + avatar.getAvatarId() + " | " + avatar.getAvatarData().getName());
+								Grasscutter.getLogger().debug(
+										"Name: " + avatar.getAvatarId() + " | " + avatar.getAvatarData().getName());
 
 								// if found avatar item main
-								if (avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE || avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {
+								if (avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE
+										|| avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {
 
 									// if main char not same team avatar
 									if (Mainchar != avatar.getAvatarId()) {
-										Grasscutter.getLogger().info("Cek Team: Main: " + Mainchar + " but found main team with " + avatar.getAvatarId());
+										Grasscutter.getLogger().info("Cek Team: Main: " + Mainchar
+												+ " but found main team with " + avatar.getAvatarId());
 									}
 
 									// add main player
 									if (check_avatar_main_add) {
-										this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars() .add(Mainchar);
+										this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars()
+												.add(Mainchar);
 										this.getTeamManager().saveAvatars();
 										Grasscutter.getLogger().info("Add");
 										needcheckteam = true;

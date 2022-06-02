@@ -1,0 +1,15 @@
+task:
+    # Basic metadata:
+    name: Gradle Build
+    only_if: true
+
+    # The build machine:
+    container:
+        image: openjdk:17.0.2-oracle
+
+    # No environment variables provided.
+
+    # Instructions:
+    Build_Gradle_Project_script: ./gradlew && ./gradlew -jar
+    Grasscutter_artifacts:
+        path: grasscutter-*.jar

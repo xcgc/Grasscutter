@@ -1273,9 +1273,12 @@ public class Player {
 
 	@PostLoad
 	private void onLoad() {
-		this.getCodex().setPlayer(this);
-		this.getTeamManager().setPlayer(this);
-		this.getTowerManager().setPlayer(this);
+		if (this.getCodex() != null)
+			this.getCodex().setPlayer(this);
+		if (this.getTeamManager() != null)
+			this.getTeamManager().setPlayer(this);
+		if (this.getTowerManager() != null)
+			this.getTowerManager().setPlayer(this);
 	}
 
 	public void save() {
@@ -1307,7 +1310,7 @@ public class Player {
 
 				List<Integer> dupcheck = new ArrayList<>();
 				List<Integer> tmpav = this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars();
-				
+
 				boolean soremoveit = false;
 
 				// check team
@@ -1322,9 +1325,10 @@ public class Player {
 						Grasscutter.getLogger().info("Remove null Avatar: " + avatarId);
 						tmpav.remove(i);
 						noremove = false;
+					} else {
+						Grasscutter.getLogger().debug("Avatar: " + avatarData.getName() + " (Index " + i + ") | "
+								+ avatarData.getId() + " | " + avatarData.getSkillDepotId());
 					}
-					Grasscutter.getLogger().debug("Avatar: " + avatarData.getName() + " (Index " + i + ") | "
-							+ avatarData.getId() + " | " + avatarData.getSkillDepotId());
 
 					// Delete Avatar Testing from Team
 					if (avatarId < 10000002 || avatarId >= 11000000) {
@@ -1361,6 +1365,7 @@ public class Player {
 						IndexGoodAvatars = i;
 					} else {
 						// hapus
+						Grasscutter.getLogger().info("found it");
 						soremoveit = true;
 					}
 
@@ -1439,19 +1444,23 @@ public class Player {
 							// Check Main Avtar
 							if (check_avatar_main) {
 
-								Grasscutter.getLogger().debug( "Name: " + avatar.getAvatarId() + " | " + avatar.getAvatarData().getName());
+								Grasscutter.getLogger().debug(
+										"Name: " + avatar.getAvatarId() + " | " + avatar.getAvatarData().getName());
 
 								// if found avatar item main
-								if (avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE || avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {
+								if (avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_MALE
+										|| avatar.getAvatarId() == GameConstants.MAIN_CHARACTER_FEMALE) {
 
 									// if main char not same team avatar
 									if (Mainchar != avatar.getAvatarId()) {
-										Grasscutter.getLogger().info("Cek Team: Main: " + Mainchar + " but found main team with " + avatar.getAvatarId());
+										Grasscutter.getLogger().info("Cek Team: Main: " + Mainchar
+												+ " but found main team with " + avatar.getAvatarId());
 									}
 
 									// add main player
 									if (check_avatar_main_add) {
-										this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars() .add(Mainchar);
+										this.getTeamManager().getCurrentSinglePlayerTeamInfo().getAvatars()
+												.add(Mainchar);
 										this.getTeamManager().saveAvatars();
 										Grasscutter.getLogger().info("Add");
 										needcheckteam = true;

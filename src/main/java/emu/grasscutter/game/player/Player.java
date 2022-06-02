@@ -1273,9 +1273,12 @@ public class Player {
 
 	@PostLoad
 	private void onLoad() {
-		this.getCodex().setPlayer(this);
-		this.getTeamManager().setPlayer(this);
-		this.getTowerManager().setPlayer(this);
+		if (this.getCodex() != null)
+			this.getCodex().setPlayer(this);
+		if (this.getTeamManager() != null)
+			this.getTeamManager().setPlayer(this);
+		if (this.getTowerManager() != null)
+			this.getTowerManager().setPlayer(this);
 	}
 
 	public void save() {

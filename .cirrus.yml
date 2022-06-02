@@ -10,6 +10,6 @@ task:
     # No environment variables provided.
 
     # Instructions:
-    Build_Gradle_Project_script: ./gradlew && ./gradlew -jar
+    Build_Gradle_Project_script: ./gradlew && ./gradlew jar
     Grasscutter_artifacts:
         path: grasscutter-*.jar

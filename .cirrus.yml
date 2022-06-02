@@ -1,6 +1,7 @@
 task:
     # Basic metadata:
     name: Gradle Build
+    only_if : true
     trigger_type: manual
 
     # The build machine:

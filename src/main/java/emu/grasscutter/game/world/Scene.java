@@ -466,9 +466,12 @@ public class Scene {
 				if (data == null) {
 					continue;
 				}
-
-				EntityMonster entity = new EntityMonster(this, data, entry.getPos(),
-						worldLevelOverride > 0 ? worldLevelOverride : entry.getLevel());
+				
+				int level = worldLevelOverride > 0 ? worldLevelOverride + entry.getLevel() - 22 : entry.getLevel();
+				level = level >= 100 ? 100 : level;
+				level = level <= 0 ? 1 : level;
+				
+				EntityMonster entity = new EntityMonster(this, data, entry.getPos(), level);
 				entity.getRotation().set(entry.getRot());
 				entity.setGroupId(entry.getGroup().getGroupId());
 				entity.setPoseId(entry.getPoseId());

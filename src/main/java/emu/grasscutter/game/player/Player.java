@@ -35,6 +35,8 @@ import emu.grasscutter.game.avatar.AvatarProfileData;
 import emu.grasscutter.game.avatar.AvatarStorage;
 import emu.grasscutter.game.entity.EntityGadget;
 import emu.grasscutter.game.entity.EntityItem;
+import emu.grasscutter.game.entity.EntityMonster;
+import emu.grasscutter.game.entity.EntityVehicle;
 import emu.grasscutter.game.entity.GameEntity;
 import emu.grasscutter.game.expedition.ExpeditionInfo;
 import emu.grasscutter.game.friends.FriendsList;
@@ -44,6 +46,7 @@ import emu.grasscutter.game.inventory.GameItem;
 import emu.grasscutter.game.inventory.Inventory;
 import emu.grasscutter.game.mail.Mail;
 import emu.grasscutter.game.mail.MailHandler;
+import emu.grasscutter.game.managers.InsectCaptureManager;
 import emu.grasscutter.game.managers.SotSManager;
 import emu.grasscutter.game.managers.DeforestationManager.DeforestationManager;
 import emu.grasscutter.game.managers.EnergyManager.EnergyManager;
@@ -90,6 +93,7 @@ import emu.grasscutter.server.packet.send.PacketClientAbilityInitFinishNotify;
 import emu.grasscutter.server.packet.send.PacketCodexDataFullNotify;
 import emu.grasscutter.server.packet.send.PacketCombatInvocationsNotify;
 import emu.grasscutter.server.packet.send.PacketFinishedParentQuestNotify;
+import emu.grasscutter.server.packet.send.PacketForgeDataNotify;
 import emu.grasscutter.server.packet.send.PacketGadgetInteractRsp;
 import emu.grasscutter.server.packet.send.PacketHomeComfortInfoNotify;
 import emu.grasscutter.server.packet.send.PacketOpenStateUpdateNotify;
@@ -139,39 +143,28 @@ public class Player {
 	private Set<Integer> nameCardList;
 	private Set<Integer> flyCloakList;
 	private Set<Integer> costumeList;
+	private Set<Integer> unlockedForgingBlueprints;
 
 	private Integer widgetId;
 
 	private Set<Integer> realmList;
 	private Integer currentRealmId;
 
-	@Transient
-	private long nextGuid = 0;
-	@Transient
-	private int peerId;
-	@Transient
-	private World world;
-	@Transient
-	private Scene scene;
-	@Transient
-	private GameSession session;
-	@Transient
-	private AvatarStorage avatars;
-	@Transient
-	private Inventory inventory;
-	@Transient
-	private FriendsList friendsList;
-	@Transient
-	private MailHandler mailHandler;
-	@Transient
-	private MessageHandler messageHandler;
-	@Transient
-	private AbilityManager abilityManager;
-	@Transient
-	private QuestManager questManager;
-
-	@Transient
-	private SotSManager sotsManager;
+	@Transient private long nextGuid = 0;
+	@Transient private int peerId;
+	@Transient private World world;
+	@Transient private Scene scene;
+	@Transient private GameSession session;
+	@Transient private AvatarStorage avatars;
+	@Transient private Inventory inventory;
+	@Transient private FriendsList friendsList;
+	@Transient private MailHandler mailHandler;
+	@Transient private MessageHandler messageHandler;
+	@Transient private AbilityManager abilityManager;
+	@Transient private QuestManager questManager;
+	
+	@Transient private SotSManager sotsManager;
+	@Transient private InsectCaptureManager insectCaptureManager;
 
 	private TeamManager teamManager;
 
@@ -241,6 +234,7 @@ public class Player {
 		this.mailHandler = new MailHandler(this);
 		this.abilityManager = new AbilityManager(this);
 		this.deforestationManager = new DeforestationManager(this);
+		this.insectCaptureManager = new InsectCaptureManager(this);
 
 		this.setQuestManager(new QuestManager(this));
 		this.pos = new Position();
@@ -257,6 +251,7 @@ public class Player {
 		this.nameCardList = new HashSet<>();
 		this.flyCloakList = new HashSet<>();
 		this.costumeList = new HashSet<>();
+		this.unlockedForgingBlueprints = new HashSet<>();
 
 		this.setSceneId(3);
 		this.setRegionId(1);
@@ -588,6 +583,10 @@ public class Player {
 
 	public Set<Integer> getNameCardList() {
 		return this.nameCardList;
+	}
+
+	public Set<Integer> getUnlockedForgingBlueprints() {
+		return unlockedForgingBlueprints;
 	}
 
 	public MpSettingType getMpSetting() {
@@ -996,48 +995,46 @@ public class Player {
 
 	public void interactWith(int gadgetEntityId) {
 		GameEntity entity = getScene().getEntityById(gadgetEntityId);
-
 		if (entity == null) {
 			return;
 		}
 
 		// Handle
-		if (entity instanceof EntityItem) {
+		if (entity instanceof EntityItem drop) {
 			// Pick item
-			EntityItem drop = (EntityItem) entity;
 			if (!drop.isShare()) // check drop owner to avoid someone picked up item in others' world
 			{
-				int dropOwner = (int) (drop.getGuid() >> 32);
-				if (dropOwner != getUid())
+				int dropOwner = (int)(drop.getGuid() >> 32);
+				if (dropOwner != getUid()) {
 					return;
+				}
 			}
 			entity.getScene().removeEntity(entity);
 			GameItem item = new GameItem(drop.getItemData(), drop.getCount());
 			// Add to inventory
 			boolean success = getInventory().addItem(item, ActionReason.SubfieldDrop);
 			if (success) {
-				if (!drop.isShare()) // not shared drop
+				if (!drop.isShare()) { // not shared drop
 					this.sendPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
-				else
-					this.getScene()
-							.broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
+				}else{
+					this.getScene().broadcastPacket(new PacketGadgetInteractRsp(drop, InteractType.INTERACT_TYPE_PICK_ITEM));
+				}
 			}
-		} else if (entity instanceof EntityGadget) {
-			EntityGadget gadget = (EntityGadget) entity;
-
+		} else if (entity instanceof EntityGadget gadget) {
 			if (gadget.getGadgetData().getType() == EntityType.RewardStatue) {
 				if (scene.getChallenge() != null) {
 					scene.getChallenge().getStatueDrops(this);
 				}
-
 				this.sendPacket(new PacketGadgetInteractRsp(gadget, InteractType.INTERACT_TYPE_OPEN_STATUE));
 			}
+		} else if (entity instanceof EntityMonster monster) {
+			insectCaptureManager.arrestSmallCreature(monster);
+		} else if (entity instanceof EntityVehicle vehicle) {// try to arrest it, example: glowworm
+			insectCaptureManager.arrestSmallCreature(vehicle);
 		} else {
 			// Delete directly
 			entity.getScene().removeEntity(entity);
 		}
-
-		return;
 	}
 
 	public void onPause() {
@@ -1571,7 +1568,7 @@ public class Player {
 			session.send(new PacketWidgetGadgetAllDataNotify());
 			session.send(new PacketPlayerHomeCompInfoNotify(this));
 			session.send(new PacketHomeComfortInfoNotify(this));
-
+			session.send(new PacketForgeDataNotify(this));
 			getTodayMoonCard(); // The timer works at 0:0, some users log in after that, use this method to
 								// check if they have received a reward today or not. If not, send the reward.
 

@@ -37,7 +37,7 @@ public final class SpawnCommand implements CommandHandler {
                     x = Float.parseFloat(args.get(3));
                     y = Float.parseFloat(args.get(4));
                     z = Float.parseFloat(args.get(5));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException | IndexOutOfBoundsException | NullPointerException ignored) {
                     CommandHandler.sendMessage(sender, translate(sender, "commands.execution.argument_error"));
                 }  // Fallthrough
             case 3:

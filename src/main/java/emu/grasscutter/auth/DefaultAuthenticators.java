@@ -35,17 +35,22 @@ public final class DefaultAuthenticators {
             String address = Utils.getClientIpAddress(request.getRequest());
             String responseMessage = translate("messages.dispatch.account.username_error");
             String loggerMessage = "";
-            String version = "69696969";
+            String version = "";
             var full = request.getRequest().originalUrl();
-
 
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
-                var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
-                var Agent = request.getRequest().get("User-Agent");
-                Grasscutter.getLogger().info("PasswordAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
+                if (version.isEmpty()) {
+                    version = "-1";
+                } else {
+                    var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
+                    var Agent = request.getRequest().get("User-Agent");
+                    Grasscutter.getLogger().info(
+                            "PasswordAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
+                }
             } catch (Exception e) {
-                Grasscutter.getLogger().error("PasswordAuthenticator: error get debug: "+full);
+                Grasscutter.getLogger().debug("PasswordAuthenticator: error get debug: " + full);
+                version = "-1";
             }
 
             if (version.contains(GameConstants.VERSION_SDK)) {
@@ -62,25 +67,19 @@ public final class DefaultAuthenticators {
                         // Check if account exists.
                         Account account = DatabaseHelper.getAccountByName(requestData.account);
                         if (account == null && ACCOUNT.autoCreate) {
-
                             // This account has been created AUTOMATICALLY. There will be no permissions
                             // added.
-                            account = DatabaseHelper.createAccountWithId(requestData.account, 0);
+                            account = DatabaseHelper.createAccountWithUid(requestData.account, 0);
 
                             // Check if the account was created successfully.
                             if (account == null) {
                                 responseMessage = translate("messages.dispatch.account.username_create_error");
-                                Grasscutter.getLogger()
-                                        .info(translate("messages.dispatch.account.account_login_create_error",
-                                                address));
+                                Grasscutter.getLogger().info(translate("messages.dispatch.account.account_login_create_error",address));
                             } else {
                                 // Continue with login.
                                 successfulLogin = true;
                                 // Log the creation.
-                                Grasscutter.getLogger()
-                                        .info(translate("messages.dispatch.account.account_login_create_success",
-                                                address,
-                                                response.data.account.uid));
+                                Grasscutter.getLogger().info(translate("messages.dispatch.account.account_login_create_success",address,response.data.account.uid));
                             }
                         } else if (account != null)
                             successfulLogin = true;
@@ -93,9 +92,7 @@ public final class DefaultAuthenticators {
                             response.data.account.uid = account.getId();
                             response.data.account.token = account.generateSessionKey();
                             response.data.account.email = account.getEmail();
-                            Grasscutter.getLogger()
-                                    .info(translate("messages.dispatch.account.login_success", address,
-                                            account.getId()));
+                            Grasscutter.getLogger().info(translate("messages.dispatch.account.login_success", address,account.getId()));
                         }
 
                     } else {
@@ -106,7 +103,12 @@ public final class DefaultAuthenticators {
                 }
 
             } else {
-                responseMessage = String.format("(PasswordAuthenticator)\n"+GameConstants.VERSION_MSG_ERROR, version);
+                if (version == "-1") {
+                    responseMessage = "Access Denied (0)";
+                } else {
+                    responseMessage = String.format("(PasswordAuthenticator)\n" + GameConstants.VERSION_MSG_ERROR,
+                            version);
+                }
             }
             // Set response data if not ok
             if (!successfulLogin) {
@@ -135,17 +137,21 @@ public final class DefaultAuthenticators {
             boolean successfulLogin;
             String address = Utils.getClientIpAddress(request.getRequest());
             String loggerMessage = "";
-            int playerCount = Grasscutter.getGameServer().getPlayers().size();
-            String version = "69696969";
+            String version = "";
             var full = request.getRequest().originalUrl();
 
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
-                var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
-                var Agent = request.getRequest().get("User-Agent");
-                Grasscutter.getLogger().info("TokenAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
+                if (version.isEmpty()) {
+                    version = "-1";
+                } else {
+                    var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
+                    var Agent = request.getRequest().get("User-Agent");
+                    Grasscutter.getLogger().info("TokenAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
+                }
             } catch (Exception e) {
-                Grasscutter.getLogger().error("TokenAuthenticator: error get debug: "+full);
+                Grasscutter.getLogger().debug("TokenAuthenticator: error get debug: " + full);
+                version = "-1";
             }
 
             // 1.30.2.0 = 2.7.0
@@ -155,6 +161,7 @@ public final class DefaultAuthenticators {
 
             if (version.contains(GameConstants.VERSION_SDK)) {
 
+                int playerCount = Grasscutter.getGameServer().getPlayers().size();
                 if (ACCOUNT.maxPlayer <= -1 || playerCount < ACCOUNT.maxPlayer) {
 
                     // Get account from database.
@@ -186,8 +193,13 @@ public final class DefaultAuthenticators {
                     response.message = translate("messages.dispatch.account.server_max_player_limit");
                 }
             } else {
-                response.retcode = -201;
-                response.message = String.format("(TokenAuthenticator)\n"+GameConstants.VERSION_MSG_ERROR, version);
+                if(version == "-1"){
+                    response.retcode = -201;
+                    response.message = "Access Denied (1)";
+                }else{
+                    response.retcode = -201;
+                    response.message = String.format("(TokenAuthenticator)\n" + GameConstants.VERSION_MSG_ERROR, version);
+                }
             }
 
             if (!loggerMessage.isEmpty()) {
@@ -215,21 +227,27 @@ public final class DefaultAuthenticators {
             boolean successfulLogin;
             String address = Utils.getClientIpAddress(request.getRequest());
             String loggerMessage = "";
-            int playerCount = Grasscutter.getGameServer().getPlayers().size();
-            String version = "69696969";
+            String version = "";
             var full = request.getRequest().originalUrl();
 
+            // SessionKeyAuthenticator
             try {
                 version = request.getRequest().get("x-rpc-mdk_version");
-                var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
-                var Agent = request.getRequest().get("User-Agent");
-                Grasscutter.getLogger().info("SessionKeyAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
+                if (version.isEmpty()) {
+                    version = "-1";
+                } else {
+                    var OS = URLDecoder.decode(request.getRequest().get("x-rpc-sys_version"), "UTF-8");
+                    var Agent = request.getRequest().get("User-Agent");
+                    Grasscutter.getLogger().info("SessionKeyAuthenticator (V: " + version + ") (OS: " + OS + "):" + full + " (" + Agent + ")");
+                }
             } catch (Exception e) {
-                Grasscutter.getLogger().error("SessionKeyAuthenticator: error get debug: "+full);
+                Grasscutter.getLogger().debug("SessionKeyAuthenticator: error get debug: " + full);
+                version = "-1";
             }
 
             if (version.contains(GameConstants.VERSION_SDK)) {
 
+                int playerCount = Grasscutter.getGameServer().getPlayers().size();
                 if (ACCOUNT.maxPlayer <= -1 || playerCount < ACCOUNT.maxPlayer) {
                     // Get account from database.
                     Account account = DatabaseHelper.getAccountById(loginData.uid);
@@ -260,8 +278,13 @@ public final class DefaultAuthenticators {
                 }
 
             } else {
-                response.retcode = -201;
-                response.message = String.format("(SessionKeyAuthenticator)\n"+GameConstants.VERSION_MSG_ERROR, version);
+                if(version == "-1"){
+                    response.retcode = -201;
+                    response.message = "Access Denied (2)";
+                }else{
+                    response.retcode = -201;
+                    response.message = String.format("(SessionKeyAuthenticator)\n" + GameConstants.VERSION_MSG_ERROR, version);
+                }  
             }
 
             if (!loggerMessage.isEmpty()) {

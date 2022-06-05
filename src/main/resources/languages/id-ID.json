@@ -181,6 +181,12 @@
         "success": "NoStamina sekarang %s untuk %s.",
         "description": "Jaga daya tahan Anda secara maksimal."
       },
+      "unlimitenergy": {
+        "usage": "unlimitenergy [targetUID] [on | off | toggle ]",
+        "success": "unlimitenergy sekarang %s untuk %s.",
+        "description": "Gunakan elemen tidak membuang energi dalam energi tak terbatas",
+        "config_error": "Perintah dinonaktifkan, karena energyUsage salah di config.json."
+      },
       "heal": {
         "success": "Semua karakter telah disembuhkan.",
         "description": "Sembuhkan semua karakter di tim Anda saat ini."

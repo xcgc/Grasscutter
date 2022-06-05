@@ -4,8 +4,8 @@ task:
     only_if : true
 
     # The build machine:
-    container:
-        image: openjdk:17.0.2-oracle
+    osx_instance:
+        image: big-sur-base
 
     # No environment variables provided.
 

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -477,6 +478,28 @@ public final class Utils {
 				return ip;
 			}
 		}
-		return request.host();
+		return request.ip();
+	}
+
+	public static String SecurityCheck(express.http.Request request) {
+		String version = "";
+		var full = request.originalUrl();
+		try {
+			version = request.get("x-rpc-mdk_version");
+			if (version.isEmpty()) {
+				version = "-1";
+			} else {
+				var Agent = request.get("User-Agent");
+				if (!(Agent.contains("UnityPlayer") || Agent.contains("okhttp") || Agent.contains("CFNetwork"))) {
+					version = "-2";
+				}
+				var OS = URLDecoder.decode(request.get("x-rpc-sys_version"), "UTF-8");
+				Grasscutter.getLogger().info(full+" (V: " + version + ") (OS: " + OS + ") (A:" + Agent + ")");
+			}
+		} catch (Exception e) {
+			Grasscutter.getLogger().debug(full+": error get debug",e);
+			version = "-3";
+		}
+		return version;
 	}
 }

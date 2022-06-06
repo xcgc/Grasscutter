@@ -1,6 +1,6 @@
 pipeline:
   build:
-    image: eclipse-temurin/17.0.3_7-jdk-jammy
+    image: eclipse-temurin:17.0.3_7-jdk-jammy
     commands:
     - ./gradlew && ./gradlew jar
   

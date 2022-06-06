@@ -10,5 +10,4 @@ pipelines:
     secret_key: $AWS_SECRET_ACCESS_KEY
     source: grasscutter-*.jar
     endpoint: https://gateway.storjshare.io
-    
-  secrets: [ AWS_S3_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY ]
+    secrets: [ AWS_S3_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY ]

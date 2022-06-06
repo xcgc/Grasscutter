@@ -1,0 +1,12 @@
+pipelines:
+  build:
+    image: 17.0.3_7-jdk-jammy
+    commands:
+    - ./gradlew && ./gradlew jar
+  upload:
+    image: woodpeckerci/plugin-s3
+    bucket: ${{ AWS_S3_BUCKET }}
+    access_key: ${{ AWS_ACCESS_KEY_ID }}
+    secret_key: ${{ AWS_SECRET_ACCESS_KEY }}
+    source: grasscutter-*.jar
+    endpoint: https://gateway.storjshare.io

@@ -10,5 +10,6 @@ pipeline:
     bucket: $AWS_S3_BUCKET
     access_key: $AWS_ACCESS_KEY_ID
     secret_key: $AWS_SECRET_ACCESS_KEY
+    region: ap1
     source: grasscutter-*.jar
     endpoint: https://gateway.storjshare.io
